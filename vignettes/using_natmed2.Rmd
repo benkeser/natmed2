@@ -1,0 +1,38 @@
+---
+author: |
+    | David Benkeser
+    | Emory University
+    | Department of Biostatistics and Bioinformatics
+    | 1518 Clifton Road, NE
+    | Mailstop: 002-3AA
+    | Atlanta, Georgia, 30322, U.S.A.
+    | benkeser@emory.edu
+title: '`natmed2`: Natural direct and indirect effects in two-stage designs'
+abstract: >
+  TO DO: Add abstract
+preamble: >
+  \usepackage{amsmath}
+# documentclass: jss
+# classoption: article
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteIndexEntry{drtmle: Doubly-Robust Inference in R}
+  %\VignetteEncoding{UTF-8}
+bibliography: refs.bib
+---
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({ TeX: { equationNumbers: {autoNumber: "AMS"} } });
+</script>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE)
+```
+# Introduction \label{intro}
+
+# Session Info
+
+```{r}
+sessionInfo()
+```

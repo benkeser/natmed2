@@ -1,0 +1,26 @@
+Package: natmed2
+Title: Estimation of natural mediation effects in two-stage studies
+Version: 0.9000
+Authors@R: c(
+    person("David", "Benkeser", email = "benkeser@emory.edu",
+           role = c("aut", "cre","cph"),
+           comment = c(ORCID = "0000-0002-1019-8343"))
+    )
+Description: Multiply robust estimators of natural mediation parameters for designs where the measurement of the mediator is subject to two-phase sampling.
+Depends:
+    R (>= 3.5.0)
+Imports:
+    SuperLearner
+Suggests:
+    testthat,
+    knitr,
+    rmarkdown,
+    quadprog,
+    nloptr
+License: MIT + file LICENSE
+URL: https://github.com/benkeser/natmed2
+BugReports: https://github.com/benkeser/natmed2/issues
+Encoding: UTF-8
+LazyData: true
+VignetteBuilder: knitr
+RoxygenNote: 7.0.2
