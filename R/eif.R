@@ -21,7 +21,7 @@ make_eif_ya1_sa2_lazy <- function(a1, a2, R, gR, A, C, gA, gC, gAS, Y,
   Y <- replace_nas(Y)
   QY_WAS <- replace_nas(QY_WAS)
   gAS <- replace_nas(gAS)
-  DPX <- make_full_data_eif(a1 = a1, a2 = a2, R = R, gR = gR, 
+  DPX <- make_full_data_eif(a1 = a1, a2 = a2, 
                             A = A, C = C, gA = gA, gC = gC, gAS = gAS, 
                             Y = Y, QY_WAS = QY_WAS, QY_W = QY_W)
   p1 <- R / gR * DPX

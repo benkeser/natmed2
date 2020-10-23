@@ -101,7 +101,9 @@ natmed2 <- function(
   glm_QY_WACY = ".", 
   SL_QY_WACY, # QY_WAS | R = 1, W, A, C, CY 
   glm_QD_WACY = ".", 
-  SL_QD_WACY, # EIF | R = 1, W, A, C, CY 
+  SL_QD_WACY, # First piece of EIF | R = 1, W, A = a, C, CY 
+  glm_QD_WACY_lazy = ".", 
+  SL_QD_WACY_lazy, # EIF | R = 1, W, A, C, CY 
   glm_QY_W = ".", 
   SL_QY_W, # QY_WACY | A = a_2, W
   glm_QY_WA = ".", 
@@ -374,21 +376,21 @@ natmed2 <- function(
   # E_X[QY_WAS | A = a, W] using inverse weights
   if(!is.null(glm_QY_W)){
     QY_W_fit_A0_A1_lazy <- stats::glm(paste0("QY_WASn_A0 ~ ", glm_QY_W), family = binomial(),
-                          data = data.frame(QY_WASn_A0 = QY_WASn_A0, W)[A == 1 & R == 1, ],
-                          weights = (R / grn_1)[A == 1 & R == 1] )
+                          data = data.frame(QY_WASn_A0 = QY_WASn_A0, W, wt = R / gRn_1)[A == 1 & R == 1, ],
+                          weights = wt)
     QY_Wn_A0_A1_lazy <- stats::predict(QY_W_fit_A0_A1_lazy, type = "response", 
                               newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W))
     QY_Wn_A0_A1_lazy_cv <- QY_Wn_A0_A1_lazy
 
     QY_W_fit_A1_A0_lazy <- stats::glm(paste0("QY_WASn_A1 ~ ", glm_QY_W), family = binomial(),
-                          data = data.frame(QY_WASn_A1 = QY_WASn_A1, W)[A == 0 & R == 1, ],
-                          weights = (R / grn_1)[A == 0 & R == 1] )
+                          data = data.frame(QY_WASn_A1 = QY_WASn_A1, W, wt = R / gRn_1)[A == 0 & R == 1, ],
+                          weights = wt)
     QY_Wn_A1_A0_lazy <- stats::predict(QY_W_fit_A1_A0_lazy, type = "response", 
                            newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W))
     QY_Wn_A1_A0_lazy_cv <- QY_Wn_A1_A0_lazy
   }else{
     set.seed(seed)
-    QY_W_fit_A0_A1_lazy <- SuperLearner::SuperLearner(Y = QY_WAS_A0[A == 1 & R == 1], 
+    QY_W_fit_A0_A1_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
                                    X = W[A == 1 & R == 1, ], 
                                    obsWeights = (R / gRn_1)[A == 1 & R == 1],
                                    family = gaussian(), 
@@ -402,7 +404,7 @@ natmed2 <- function(
     QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy >= 1] <- 1
 
     set.seed(seed)
-    QY_W_fit_A1_A0_lazy <- SuperLearner::SuperLearner(Y = QY_WAS_A1[A == 0 & R == 1], 
+    QY_W_fit_A1_A0_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
                                    X = W[A == 0 & R == 1, ], 
                                    obsWeights = (R / gRn_1)[A == 0 & R == 1],
                                    family = gaussian(), 
@@ -428,29 +430,29 @@ natmed2 <- function(
   # need eif for the outcome
   D_A1_A0 <- make_full_data_eif(a1 = 1, a2 = 0, A = A, C = C, 
                                 gA = gAn_1, gC = gCn_1_A1, 
-                                gAS = gASn_1, Y = Y, QY_WAS = QY_WAS_A1, 
+                                gAS = gASn_1, Y = Y, QY_WAS = QY_WASn_A1, 
                                 QY_W = QY_Wn_A1_A0)
   D_A0_A1 <- make_full_data_eif(a1 = 0, a2 = 1, A = A, C = C, 
                                 gA = 1 - gAn_1, gC = gCn_1_A1,
-                                gAS = 1 - gASn_1, Y = Y, QY_WAS = QY_WAS_A0, 
+                                gAS = 1 - gASn_1, Y = Y, QY_WAS = QY_WASn_A0, 
                                 QY_W = QY_Wn_A0_A1)
 
 
-  if(!is.null(glm_QD_WACY)){
-    QD_WACY_fit_A1_A0 <- stats::glm(paste0("DY_A1_A0 ~ ", glm_QD_WACY), 
-                                    data = data.frame(DY_A1_A0 = DY_A1_A0, A = A, W, 
+  if(!is.null(glm_QD_WACY_lazy)){
+    QD_WACY_fit_A1_A0 <- stats::glm(paste0("D_A1_A0 ~ ", glm_QD_WACY_lazy), 
+                                    data = data.frame(D_A1_A0 = D_A1_A0, A = A, W, 
                                                       CY11 = CY11, CY10 = CY10)[R == 1, ])
     QD_WACYn_A1_A0 <- stats::predict(QD_WACY_fit_A1_A0, type = "response", 
-                                     newdata = data.frame(DY_A1_A0 = DY_A1_A0, 
+                                     newdata = data.frame(D_A1_A0 = D_A1_A0, 
                                                           A = A, W, CY11 = CY11, 
                                                           CY10 = CY10))
     QD_WACYn_A1_A0_cv <- QD_WACYn_A1_A0
 
-    QD_WACY_fit_A0_A1 <- stats::glm(paste0("DY_A0_A1 ~ ", glm_QD_WACY),
-                                    data = data.frame(DY_A0_A1 = DY_A0_A1, A = A, W, 
+    QD_WACY_fit_A0_A1 <- stats::glm(paste0("D_A0_A1 ~ ", glm_QD_WACY_lazy),
+                                    data = data.frame(D_A0_A1 = D_A0_A1, A = A, W, 
                                                       CY11 = CY11, CY10 = CY10)[R == 1, ])
     QD_WACYn_A0_A1 <- stats::predict(QD_WACY_fit_A0_A1, type = "response", 
-                                     newdata = data.frame(DY_A0_A1 = DY_A0_A1, 
+                                     newdata = data.frame(D_A0_A1 = D_A0_A1, 
                                                           A = A, W, CY11 = CY11, 
                                                           CY10 = CY10))
     QD_WACYn_A0_A1_cv <- QD_WACYn_A0_A1
@@ -459,7 +461,7 @@ natmed2 <- function(
     QD_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = D_A1_A0[R == 1], 
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
-                                   SL.library = SL_QD_WACY,
+                                   SL.library = SL_QD_WACY_lazy,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A1_A0 <- as.numeric(
@@ -470,7 +472,7 @@ natmed2 <- function(
     QD_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = D_A0_A1[R == 1], 
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
-                                   SL.library = SL_QD_WACY,
+                                   SL.library = SL_QD_WACY_lazy,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A0_A1 <- as.numeric(
@@ -612,10 +614,16 @@ natmed2 <- function(
   risks_and_effects_lazy <- get_risks_and_effects(psi11n = psi11n, psi00n = psi00n,
                                                   psi10n = psi10n_lazy, psi01n = psi01n_lazy,
                                                   cov_matrix = cov_matrix_lazy,
-                                                  cov_matrix_cv = cov_matrix_cv)
+                                                  cov_matrix_cv = cov_matrix_lazy_cv)
   
   # TO DO: Add fitted nuisance models to output?
-  out <- list(risk = risk, eff = eff, eff2 = eff2, cov = cov_matrix, cov_cv = cov_matrix_cv)
-
+  out <- list(risk = risks_and_effects$risk, 
+              eff = risks_and_effects$eff, 
+              eff2 = risks_and_effects$eff2, 
+              cov = cov_matrix, cov_cv = cov_matrix_cv,
+              risk_lazy = risks_and_effects_lazy$risk, 
+              eff_lazy = risks_and_effects_lazy$eff, 
+              eff2_lazy = risks_and_effects_lazy$eff2, 
+              cov_lazy = cov_matrix_lazy, cov_lazy_cv = cov_matrix_lazy_cv)
   return(out)
 }
