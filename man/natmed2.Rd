@@ -9,7 +9,7 @@ natmed2(W, A, R, S, C, Y, glm_gR = ".^2", glm_gC = ".", SL_gC = NULL,
   " + S"), SL_gAS, glm_QY_WAS = paste0(paste0(colnames(W), collapse =
   " + "), "+ A + S"), SL_QY_WAS, glm_QY_WACY = ".", SL_QY_WACY,
   glm_QD_WACY = ".", SL_QD_WACY, glm_QY_W = ".", SL_QY_W,
-  glm_QY_WA = ".", SL_QY_WA, seed = 1, ...)
+  glm_QY_WA = ".", SL_QY_WA, lazy = FALSE, seed = 1, ...)
 }
 \arguments{
 \item{W}{A \code{data.frame} of baseline covariates}
@@ -74,6 +74,9 @@ in estimation of E[Y(a, S(a))]. Available variable names are: \code{colnames(W)}
 \item{SL_QY_WA}{A \code{SuperLearner} library for estimation of the outcome regression used to 
 compute estimates of E[Y(a, S(a))].}
 
+\item{lazy}{If \code{TRUE}, then the non-simplified version of the EIF is used, in lieu of
+the extra sequential regression.}
+
 \item{seed}{The seed set before each \code{SuperLearner} fit.}
 
 \item{...}{Other options (not currently used)}
@@ -100,9 +103,9 @@ Natural in/direct effects with two-phase sampling of the mediator
 }
 \examples{
 n <- 500
-W1 <- rbinom(n0, 1, 0.5)
-W2 <- rnorm(n0, 0, 1)
-A <- rbinom(n0, 1, 0.5)
+W1 <- rbinom(n, 1, 0.5)
+W2 <- rnorm(n, 0, 1)
+A <- rbinom(n, 1, 0.5)
 S <- W1 / 4 - W2 / 3 + A + rnorm(n)
 Y <- rbinom(n, 1, plogis(-2 + A + W1 / 2 - S / 2))
 

@@ -16,6 +16,37 @@
 #' @param QY_W Estimate of E[QY_WACY | A = a2, W]
 #' 
 #' @return An n-length vector of the estimated EIF evaluated on the observations
+make_eif_ya1_sa2_lazy <- function(a1, a2, R, gR, A, C, gA, gC, gAS, Y, 
+                                  QY_WAS, QY_W, QD_WACY){
+  Y <- replace_nas(Y)
+  QY_WAS <- replace_nas(QY_WAS)
+  gAS <- replace_nas(gAS)
+  DPX <- make_full_data_eif(a1 = a1, a2 = a2, R = R, gR = gR, 
+                            A = A, C = C, gA = gA, gC = gC, gAS = gAS, 
+                            Y = Y, QY_WAS = QY_WAS, QY_W = QY_W)
+  p1 <- R / gR * DPX
+  p2 <- QD_WACY / gR * (R - gR)
+  return(p1 - p2)
+}
+
+#' Evaluate EIF of E[Y(a1, S(a2))] on data
+#' 
+#' @param a1 Either 0 or 1
+#' @param a2 Should be \code{1 - a1}
+#' @param R A numeric indicator of having mediator measured
+#' @param A A numeric vector of binary treatment assignment
+#' @param C A numeric indicator of having the outcome \code{Y} measured, 
+#' i.e., a measure of being not right-censored. 
+#' @param gA Estimate of P(A = a1 | W_i), i = 1,...,n
+#' @param gR Estimate of P(R = 1 | W_i, A_i, C_i, C_iY_i)
+#' @param gAS Estimate of P(A = a1 | S_i, W_i)
+#' @param gC Estimate of P(C = 1 | A = a1, W_i)
+#' @param QY_WAS Estimate of E[Y | A = a1, W_i, S_i]
+#' @param QD_WACY Estimate of extra nuisance regression
+#' @param QY_WACY Estimate of E[QY_WAS | A = a2, W, C, CY]
+#' @param QY_W Estimate of E[QY_WACY | A = a2, W]
+#' 
+#' @return An n-length vector of the estimated EIF evaluated on the observations
 make_eif_ya1_sa2 <- function(a1, a2, R, gR, A, C, gA, gC, gAS, Y, QY_WAS,
                              QD_WACY, QY_WACY, QY_W){
   Y <- replace_nas(Y)
@@ -45,7 +76,7 @@ make_eif_ya1_sa2 <- function(a1, a2, R, gR, A, C, gA, gC, gAS, Y, QY_WAS,
 #' @param QY_W Estimate of E[QY_WACY | A = a2, W]
 #' 
 #' @return An n-length vector of the estimated EIF evaluated on the observations
-make_full_data_eif <- function(a1, a2, R, gR, A, C, gA, gC, gAS, Y, QY_WAS, QY_W){
+make_full_data_eif <- function(a1, a2, A, C, gA, gC, gAS, Y, QY_WAS, QY_W){
   Y <- replace_nas(Y)
   QY_WAS <- replace_nas(QY_WAS)
   gAS <- replace_nas(gAS)

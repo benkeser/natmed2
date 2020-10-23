@@ -1,3 +1,69 @@
+#' Helper function to format risk and effect estimates
+#' 
+#' @param psi11n Estimate of E[Y(1, S(1))]
+#' @param psi00n Estimate of E[Y(0, S(0))]
+#' @param psi10n Estimate of E[Y(1, S(0))]
+#' @param psi01n Estimate of E[Y(0, S(1))]
+#' @param cov_matrix Covariance matrix
+#' @param cov_matrix_cv Cross-validated covariance matrix
+#' @return A \code{list} with named objects \code{risk}, \code{eff}, \code{eff2}
+
+get_risks_and_effects <- function(psi11n, psi00n, psi10n, psi01n,
+                                  cov_matrix, cov_matrix_cv){
+  # risks
+  one_step_est <- c(psi11n, psi00n, psi10n, psi01n)
+  cil <- one_step_est - 1.96 * sqrt(diag(cov_matrix))
+  ciu <- one_step_est + 1.96 * sqrt(diag(cov_matrix))
+  cil_cv <- one_step_est - 1.96 * sqrt(diag(cov_matrix_cv))
+  ciu_cv <- one_step_est + 1.96 * sqrt(diag(cov_matrix_cv))
+  risk <- data.frame(one_step = one_step_est, cil = cil, ciu = ciu, cil_cv = cil_cv, ciu_cv = ciu_cv)
+  row.names(risk) <- c("E[Y(1,S(1))]", "E[Y(0,S(0))]", "E[Y(1,S(0))]", "E[Y(0,S(1))]")
+
+  # effects 
+  total_eff <- psi11n / psi00n
+  grad_log_total_eff <- matrix(c(1 / psi11n, -1 / psi00n, 0, 0), ncol = 1)
+  ci_total_eff <- get_ci(total_eff, grad_log_total_eff, cov_matrix)
+  ci_total_eff_cv <- get_ci(total_eff, grad_log_total_eff, cov_matrix_cv)
+
+  indirect_eff <- psi11n / psi10n
+  grad_log_indirect_eff <- matrix(c(1 / psi11n, 0, -1 / psi10n, 0), ncol = 1)
+  ci_indirect_eff <- get_ci(indirect_eff, grad_log_indirect_eff, cov_matrix)
+  ci_indirect_eff_cv <- get_ci(indirect_eff, grad_log_indirect_eff, cov_matrix_cv)
+
+  direct_eff <- psi10n / psi00n
+  grad_log_direct_eff <- matrix(c(0, -1 / psi00n, 1 / psi10n, 0), ncol = 1)
+  ci_direct_eff <- get_ci(direct_eff, grad_log_direct_eff, cov_matrix)
+  ci_direct_eff_cv <- get_ci(direct_eff, grad_log_direct_eff, cov_matrix_cv)
+
+  direct_eff2 <- psi11n / psi01n
+  grad_log_direct_eff2 <- matrix(c(1 / psi11n, 0, 0, -1 / psi01n), ncol = 1)
+  ci_direct_eff2 <- get_ci(direct_eff2, grad_log_direct_eff2, cov_matrix)
+  ci_direct_eff2_cv <- get_ci(direct_eff2, grad_log_direct_eff2, cov_matrix_cv)
+  
+  indirect_eff2 <- psi01n / psi00n
+  grad_log_indirect_eff2 <- matrix(c(0, -1 / psi00n, 0, 1 / psi01n), ncol = 1)
+  ci_indirect_eff2 <- get_ci(indirect_eff2, grad_log_indirect_eff2, cov_matrix)
+  ci_indirect_eff2_cv <- get_ci(indirect_eff2, grad_log_indirect_eff2, cov_matrix_cv)
+
+
+  eff <- data.frame(effect = c("E[Y(1,S(1))] / E[Y(0,S(0))]", "E[Y(1,S(0))] / E[Y(0,S(0))]", "E[Y(1,S(1))] / E[Y(1,S(0))]"),
+                    one_step_est = c(total_eff, direct_eff, indirect_eff),
+                    cil = c(ci_total_eff[1], ci_direct_eff[1], ci_indirect_eff[1]),
+                    ciu = c(ci_total_eff[2], ci_direct_eff[2], ci_indirect_eff[2]),
+                    cil_cv = c(ci_total_eff_cv[1], ci_direct_eff_cv[1], ci_indirect_eff_cv[1]),
+                    ciu_cv = c(ci_total_eff_cv[2], ci_direct_eff_cv[2], ci_indirect_eff_cv[2]))
+  row.names(eff) <- c("Total", "Direct", "Indirect")
+
+  eff2 <- data.frame(effect = c("E[Y(1,S(1))] / E[Y(0,S(0))]", "E[Y(1,S(1))] / E[Y(0,S(1))]", "E[Y(0,S(1))] / E[Y(0,S(0))]"),
+                    one_step_est = c(total_eff, direct_eff2, indirect_eff2),
+                    cil = c(ci_total_eff[1], ci_direct_eff2[1], ci_indirect_eff2[1]),
+                    ciu = c(ci_total_eff[2], ci_direct_eff2[2], ci_indirect_eff2[2]),
+                    cil_cv = c(ci_total_eff_cv[1], ci_direct_eff2_cv[1], ci_indirect_eff2_cv[1]),
+                    ciu_cv = c(ci_total_eff_cv[2], ci_direct_eff2_cv[2], ci_indirect_eff2_cv[2]))
+  row.names(eff2) <- c("Total", "Direct", "Indirect")
+  return(list(risk = risk, eff = eff, eff2 = eff2))
+}
+
 #' Helper function to compute 95 percent confidence intervals on log-scale
 #' 
 #' @param est The effect estimate (on original scale)

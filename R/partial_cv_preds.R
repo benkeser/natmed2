@@ -31,8 +31,40 @@ partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C){
 }
 
 # make newdata data.frame(A = a, W, S)
+partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A){
+  n <- length(A)
+  n_algo <- length(fit_sl$cvRisk)
+  n_folds <- length(fit_sl$validRows)
+  alpha_hat <- matrix(fit_sl$coef, nrow = n_algo)
+  rslt_list <- vector(mode = "list", length = n_folds)
+  for(v in seq_len(n_folds)){
+    # who's in the validation fold of the included folks
+    foldv_ids <- fit_sl$validRows[[v]]
+    # these are the people who were not used to fit these models
+    foldv_models <- fit_sl$cvFitLibrary[[v]]
+    rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
+    for(k in seq_len(n_algo)){
+      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a,][foldv_ids,])
+    }
+    rslt_list[[v]] <- rslt
+  }
+  # combine using weights from full super learner
+  pred_list <- vector(mode = "list", length = n_folds)
+  for(v in seq_len(n_folds)){
+    pred_list[[v]] <- rslt_list[[v]] %*% alpha_hat
+  }
+  reorder_preds <- rep(NA, n)
+  # fill in observations in regression with cross-validated prediction
+  reorder_preds[A == a][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
+  # all others fill in with prediction from super learner 
+  reorder_preds[A != a] <- stats::predict(fit_sl, newdata = newdata[A != a, ])[[1]]
+  
+  return(reorder_preds)
+}
+
+# make newdata data.frame(A = a, W, S)
 partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A){
-  n <- length(R)
+  n <- length(A)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
   alpha_hat <- matrix(fit_sl$coef, nrow = n_algo)
@@ -127,6 +159,38 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C){
   reorder_preds[A == a & C == 1 & R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
   reorder_preds[A == a & C == 1 & R == 0] <- stats::predict(fit_sl, newdata = newdata[A == a & C == 1 & R == 0, ])[[1]]
+  
+  return(reorder_preds)
+}
+
+# make newdata data.frame(A = a, W, S)
+partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R){
+  n <- length(R)
+  n_algo <- length(fit_sl$cvRisk)
+  n_folds <- length(fit_sl$validRows)
+  alpha_hat <- matrix(fit_sl$coef, nrow = n_algo)
+  rslt_list <- vector(mode = "list", length = n_folds)
+  for(v in seq_len(n_folds)){
+    # who's in the validation fold of the included folks
+    foldv_ids <- fit_sl$validRows[[v]]
+    # these are the people who were not used to fit these models
+    foldv_models <- fit_sl$cvFitLibrary[[v]]
+    rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
+    for(k in seq_len(n_algo)){
+      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[R == 1,][foldv_ids,])
+    }
+    rslt_list[[v]] <- rslt
+  }
+  # combine using weights from full super learner
+  pred_list <- vector(mode = "list", length = n_folds)
+  for(v in seq_len(n_folds)){
+    pred_list[[v]] <- rslt_list[[v]] %*% alpha_hat
+  }
+  reorder_preds <- rep(0, n)
+  # fill in observations in regression with cross-validated prediction
+  reorder_preds[R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
+  # all others fill in with prediction from super learner 
+  reorder_preds[R == 0] <- stats::predict(fit_sl, newdata = newdata[R == 0, ])[[1]]
   
   return(reorder_preds)
 }

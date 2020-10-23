@@ -215,256 +215,273 @@ natmed2 <- function(
     QY_WASn_A1_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 1, S = S, W), R = R, C = C)
   }
 
+  # compute outcome of extra nuisance regression
+  DY_A1 <- make_D1a(a = 1, A = A, Y = Y, C = C, 
+                    gA = gASn_1, gAS = gASn_1, gC = gCn_1_A1, QY_WAS = QY_WASn_A1)
+  DY_A0 <- make_D1a(a = 0, A = A, Y = Y, C = C, 
+                    gA = gASn_1, gAS = gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
 
+  if(!is.null(glm_QD_WACY)){
+    QD_WACY_fit_A0 <- stats::glm(paste0("DY_A0 ~ ", glm_QD_WACY),
+                          data = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ])
+    QD_WACYn_A0 <- rep(NA, n)
+    QD_WACYn_A0[A == 1 | C == 0] <- 0
+    QD_WACYn_A0[A == 0 & C == 1] <- stats::predict(QD_WACY_fit_A0, type = "response", 
+                                            newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])
+    QD_WACYn_A0_cv <- QD_WACYn_A0
 
-  if(!lazy){
-    # compute outcome of extra nuisance regression
-    DY_A1 <- make_D1a(a = 1, A = A, Y = Y, C = C, 
-                      gA = gASn_1, gAS = gASn_1, gC = gCn_1_A1, QY_WAS = QY_WASn_A1)
-    DY_A0 <- make_D1a(a = 0, A = A, Y = Y, C = C, 
-                      gA = gASn_1, gAS = gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
-
-    if(!is.null(glm_QD_WACY)){
-      QD_WACY_fit_A0 <- stats::glm(paste0("DY_A0 ~ ", glm_QD_WACY),
-                            data = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ])
-      QD_WACYn_A0 <- rep(NA, n)
-      QD_WACYn_A0[A == 1 | C == 0] <- 0
-      QD_WACYn_A0[A == 0 & C == 1] <- stats::predict(QD_WACY_fit_A0, type = "response", 
-                                              newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])
-      QD_WACYn_A0_cv <- QD_WACYn_A0
-
-      QD_WACY_fit_A1 <- stats::glm(paste0("DY_A1 ~ ", glm_QD_WACY),
-                            data = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ])
-      QD_WACYn_A1 <- rep(NA, n)
-      QD_WACYn_A1[A == 0 | C == 0] <- 0
-      QD_WACYn_A1[A == 1 & C == 1] <- stats::predict(QD_WACY_fit_A1, type = "response", 
-                                              newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])  
-      QD_WACYn_A1_cv <- QD_WACYn_A1
-    }else{
-      set.seed(seed)
-      QD_WACY_fit_A0 <- SuperLearner::SuperLearner(Y = DY_A0[A == 0 & C == 1 & R == 1], 
-                                     X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ], 
-                                     family = gaussian(), 
-                                     SL.library = SL_QD_WACY,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QD_WACYn_A0 <- rep(NA, n)
-      QD_WACYn_A0[A == 1 | C == 0] <- 0
-      QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
-
-      set.seed(seed)
-      QD_WACY_fit_A1 <- SuperLearner::SuperLearner(Y = DY_A1[A == 1 & C == 1 & R == 1], 
-                                     X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ], 
-                                     family = gaussian(), 
-                                     SL.library = SL_QD_WACY,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QD_WACYn_A1 <- rep(NA, n)
-      QD_WACYn_A1[A == 0 | C == 0] <- 0
-      QD_WACYn_A1[A == 1 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])[[1]])
-
-
-      # get partially cross-validated predictions
-      QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
-      QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
-    }
-
-    if(!is.null(glm_QY_WACY)){
-      QY_WACY_fit_A0_A1 <- stats::glm(paste0("QY_WASn_A0 ~ ", glm_QY_WACY), family = binomial(),
-                            data = data.frame(QY_WASn_A0 = QY_WASn_A0, 
-                                              W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ])
-      QY_WACYn_A0_A1 <- stats::predict(QY_WACY_fit_A0_A1, type = "response", 
-                                newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, 
-                                                     W, CY11 = CY11, CY10 = CY10))
-      QY_WACYn_A0_A1_cv <- QY_WACYn_A0_A1
-
-      QY_WACY_fit_A1_A0 <- stats::glm(paste0("QY_WASn_A1 ~ ", glm_QY_WACY), family = binomial(),
-                            data = data.frame(QY_WASn_A1 = QY_WASn_A1, 
-                                              W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ])
-      QY_WACYn_A1_A0 <- stats::predict(QY_WACY_fit_A1_A0, type = "response", 
-                                newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, 
-                                                     W, CY11 = CY11, CY10 = CY10))
-      QY_WACYn_A1_A0_cv <- QY_WACYn_A1_A0
-    }else{
-      set.seed(seed)
-      QY_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
-                                        X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ], 
-                                        family = gaussian(), 
-                                        SL.library = SL_QY_WACY,
-                                        method = tmp_method.CC_LS(),
-                                        control = list(saveCVFitLibrary = TRUE))
-      QY_WACYn_A0_A1 <- as.numeric(
-        stats::predict(QY_WACY_fit_A0_A1, 
-                newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W, CY11 = CY11, CY10 = CY10))[[1]]
-      )
-      QY_WACYn_A0_A1[QY_WACYn_A0_A1 <= 0] <- 0
-      QY_WACYn_A0_A1[QY_WACYn_A0_A1 >= 1] <- 1
-
-      set.seed(seed)
-      QY_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
-                                        X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ], 
-                                        family = gaussian(), 
-                                        SL.library = SL_QY_WACY,
-                                        method = tmp_method.CC_LS(),
-                                        control = list(saveCVFitLibrary = TRUE))
-      QY_WACYn_A1_A0 <- as.numeric(
-        stats::predict(QY_WACY_fit_A1_A0, 
-                newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W, CY11 = CY11, CY10 = CY10))[[1]]
-      )
-      QY_WACYn_A1_A0[QY_WACYn_A1_A0 <= 0] <- 0
-      QY_WACYn_A1_A0[QY_WACYn_A1_A0 >= 1] <- 1
-
-      # get partially cross-validated predictions
-      QY_WACYn_A1_A0_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A1_A0, a = 0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
-      QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv <= 0] <- 0
-      QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv >= 1] <- 1
-      
-      QY_WACYn_A0_A1_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A0_A1, a = 1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
-      QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv <= 0] <- 0
-      QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv >= 1] <- 1
-    }
-
-    if(!is.null(glm_QY_W)){
-      QY_W_fit_A0_A1 <- stats::glm(paste0("QY_WACYn_A0_A1 ~ ", glm_QY_W), family = binomial(),
-                            data = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W)[A == 1, ])
-      QY_Wn_A0_A1 <- stats::predict(QY_W_fit_A0_A1, type = "response", 
-                                newdata = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W))
-      QY_Wn_A0_A1_cv <- QY_Wn_A0_A1
-
-      QY_W_fit_A1_A0 <- stats::glm(paste0("QY_WACYn_A1_A0 ~ ", glm_QY_W), family = binomial(),
-                            data = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W)[A == 0, ])
-      QY_Wn_A1_A0 <- stats::predict(QY_W_fit_A1_A0, type = "response", 
-                             newdata = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W))
-      QY_Wn_A1_A0_cv <- QY_Wn_A1_A0
-    }else{
-      set.seed(seed)
-      QY_W_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WACYn_A0_A1[A == 1], 
-                                     X = W[A == 1, ], 
-                                     family = gaussian(), 
-                                     SL.library = SL_QY_W,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QY_Wn_A0_A1 <- as.numeric(
-        stats::predict(QY_W_fit_A0_A1, newdata = W)[[1]]
-      )
-      QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
-      QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
-
-      set.seed(seed)
-      QY_W_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WACYn_A1_A0[A == 0], 
-                                     X = W[A == 0, ], 
-                                     family = gaussian(), 
-                                     SL.library = SL_QY_W,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QY_Wn_A1_A0 <- as.numeric(
-        stats::predict(QY_W_fit_A1_A0, newdata = W)[[1]]
-      )
-      QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
-      QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
-
-      QY_Wn_A1_A0_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A1_A0, a = 0, newdata = W, A = A)
-      QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv <= 0] <- 0
-      QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv >= 1] <- 1
-      
-      QY_Wn_A0_A1_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A0_A1, a = 1, newdata = W, A = A)
-      QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv <= 0] <- 0
-      QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv >= 1] <- 1
-    }
+    QD_WACY_fit_A1 <- stats::glm(paste0("DY_A1 ~ ", glm_QD_WACY),
+                          data = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ])
+    QD_WACYn_A1 <- rep(NA, n)
+    QD_WACYn_A1[A == 0 | C == 0] <- 0
+    QD_WACYn_A1[A == 1 & C == 1] <- stats::predict(QD_WACY_fit_A1, type = "response", 
+                                            newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])  
+    QD_WACYn_A1_cv <- QD_WACYn_A1
   }else{
-
-    if(!is.null(glm_QY_W)){
-      QY_W_fit_A0_A1 <- stats::glm(paste0("QY_WACYn_A0_A1 ~ ", glm_QY_W), family = binomial(),
-                            data = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W)[A == 1, ])
-      QY_Wn_A0_A1 <- stats::predict(QY_W_fit_A0_A1, type = "response", 
-                                newdata = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W))
-      QY_Wn_A0_A1_cv <- QY_Wn_A0_A1
-
-      QY_W_fit_A1_A0 <- stats::glm(paste0("QY_WACYn_A1_A0 ~ ", glm_QY_W), family = binomial(),
-                            data = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W)[A == 0, ])
-      QY_Wn_A1_A0 <- stats::predict(QY_W_fit_A1_A0, type = "response", 
-                             newdata = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W))
-      QY_Wn_A1_A0_cv <- QY_Wn_A1_A0
-    }else{
-      # E_X[QY_WAS | A = a, W] using inverse weights
-      set.seed(seed)
-      QY_W_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WAS_A0[A == 1 & R == 1], 
-                                     X = W[A == 1 & R == 1, ], 
-                                     obsWeights = (R / gRn_1)[A == 1 & R == 1],,
-                                     family = gaussian(), 
-                                     SL.library = SL_QY_W,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QY_Wn_A0_A1 <- as.numeric(
-        stats::predict(QY_W_fit_A0_A1, newdata = W)[[1]]
-      )
-      QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
-      QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
-
-      set.seed(seed)
-      QY_W_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WAS_A1[A == 0 & R == 1], 
-                                     X = W[A == 0 & R == 1, ], 
-                                     obsWeights = (R / gRn_1)[A == 0 & R == 1],,
-                                     family = gaussian(), 
-                                     SL.library = SL_QY_W,
-                                     method = tmp_method.CC_LS(),
-                                     control = list(saveCVFitLibrary = TRUE))
-      QY_Wn_A1_A0 <- as.numeric(
-        stats::predict(QY_W_fit_A1_A0, newdata = W)[[1]]
-      )
-      QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
-      QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
-
-      QY_Wn_A1_A0_cv <- partial_cv_preds_QY_WACYn(QY_W_fit_A1_A0, a = 0, newdata = W, A = A, R = R)
-      QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv <= 0] <- 0
-      QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv >= 1] <- 1
-      
-      QY_Wn_A0_A1_cv <- partial_cv_preds_QY_WACYn(QY_W_fit_A0_A1, a = 1, newdata = W, A = A, R = R)
-      QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv <= 0] <- 0
-      QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv >= 1] <- 1
-    }
-
-    # E[ D(P_X)(O) | R = 1, W, A, C, CY]
-    # need eif for the outcome
-    D_A1_A0 <- make_full_data_eif(a1 = 1, a2 = 0, R = R, 
-                                  gR = gRn_1, A = A, C = C, 
-                                  gA = gAn_1, gC = gCn_1_A1, 
-                                  gAS = gASn_1, Y = Y, QY_WAS = QY_WAS_A1, 
-                                  QY_W = QY_Wn_A1_A0)
-    D_A0_A1 <- make_full_data_eif(a1 = 0, a2 = 1,  R = R, 
-                                  gR = gRn_1, A = A, C = C, 
-                                  gA = 1 - gAn_1, gC = gCn_1_A1,
-                                  gAS = 1 - gASn_1, Y = Y, QY_WAS = QY_WAS_A0, 
-                                  QY_W = QY_Wn_A0_A1)
+    set.seed(seed)
+    QD_WACY_fit_A0 <- SuperLearner::SuperLearner(Y = DY_A0[A == 0 & C == 1 & R == 1], 
+                                   X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ], 
+                                   family = gaussian(), 
+                                   SL.library = SL_QD_WACY,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QD_WACYn_A0 <- rep(NA, n)
+    QD_WACYn_A0[A == 1 | C == 0] <- 0
+    QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
 
     set.seed(seed)
+    QD_WACY_fit_A1 <- SuperLearner::SuperLearner(Y = DY_A1[A == 1 & C == 1 & R == 1], 
+                                   X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ], 
+                                   family = gaussian(), 
+                                   SL.library = SL_QD_WACY,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QD_WACYn_A1 <- rep(NA, n)
+    QD_WACYn_A1[A == 0 | C == 0] <- 0
+    QD_WACYn_A1[A == 1 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])[[1]])
+
+
+    # get partially cross-validated predictions
+    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
+    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
+  }
+
+  if(!is.null(glm_QY_WACY)){
+    QY_WACY_fit_A0_A1 <- stats::glm(paste0("QY_WASn_A0 ~ ", glm_QY_WACY), family = binomial(),
+                          data = data.frame(QY_WASn_A0 = QY_WASn_A0, 
+                                            W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ])
+    QY_WACYn_A0_A1 <- stats::predict(QY_WACY_fit_A0_A1, type = "response", 
+                              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, 
+                                                   W, CY11 = CY11, CY10 = CY10))
+    QY_WACYn_A0_A1_cv <- QY_WACYn_A0_A1
+
+    QY_WACY_fit_A1_A0 <- stats::glm(paste0("QY_WASn_A1 ~ ", glm_QY_WACY), family = binomial(),
+                          data = data.frame(QY_WASn_A1 = QY_WASn_A1, 
+                                            W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ])
+    QY_WACYn_A1_A0 <- stats::predict(QY_WACY_fit_A1_A0, type = "response", 
+                              newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, 
+                                                   W, CY11 = CY11, CY10 = CY10))
+    QY_WACYn_A1_A0_cv <- QY_WACYn_A1_A0
+  }else{
+    set.seed(seed)
+    QY_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
+                                      X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ], 
+                                      family = gaussian(), 
+                                      SL.library = SL_QY_WACY,
+                                      method = tmp_method.CC_LS(),
+                                      control = list(saveCVFitLibrary = TRUE))
+    QY_WACYn_A0_A1 <- as.numeric(
+      stats::predict(QY_WACY_fit_A0_A1, 
+              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W, CY11 = CY11, CY10 = CY10))[[1]]
+    )
+    QY_WACYn_A0_A1[QY_WACYn_A0_A1 <= 0] <- 0
+    QY_WACYn_A0_A1[QY_WACYn_A0_A1 >= 1] <- 1
+
+    set.seed(seed)
+    QY_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
+                                      X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ], 
+                                      family = gaussian(), 
+                                      SL.library = SL_QY_WACY,
+                                      method = tmp_method.CC_LS(),
+                                      control = list(saveCVFitLibrary = TRUE))
+    QY_WACYn_A1_A0 <- as.numeric(
+      stats::predict(QY_WACY_fit_A1_A0, 
+              newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W, CY11 = CY11, CY10 = CY10))[[1]]
+    )
+    QY_WACYn_A1_A0[QY_WACYn_A1_A0 <= 0] <- 0
+    QY_WACYn_A1_A0[QY_WACYn_A1_A0 >= 1] <- 1
+
+    # get partially cross-validated predictions
+    QY_WACYn_A1_A0_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A1_A0, a = 0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
+    QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv <= 0] <- 0
+    QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv >= 1] <- 1
+    
+    QY_WACYn_A0_A1_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A0_A1, a = 1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
+    QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv <= 0] <- 0
+    QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv >= 1] <- 1
+  }
+
+  if(!is.null(glm_QY_W)){
+    QY_W_fit_A0_A1 <- stats::glm(paste0("QY_WACYn_A0_A1 ~ ", glm_QY_W), family = binomial(),
+                          data = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W)[A == 1, ])
+    QY_Wn_A0_A1 <- stats::predict(QY_W_fit_A0_A1, type = "response", 
+                              newdata = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W))
+    QY_Wn_A0_A1_cv <- QY_Wn_A0_A1
+
+    QY_W_fit_A1_A0 <- stats::glm(paste0("QY_WACYn_A1_A0 ~ ", glm_QY_W), family = binomial(),
+                          data = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W)[A == 0, ])
+    QY_Wn_A1_A0 <- stats::predict(QY_W_fit_A1_A0, type = "response", 
+                           newdata = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W))
+    QY_Wn_A1_A0_cv <- QY_Wn_A1_A0
+  }else{
+    set.seed(seed)
+    QY_W_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WACYn_A0_A1[A == 1], 
+                                   X = W[A == 1, ], 
+                                   family = gaussian(), 
+                                   SL.library = SL_QY_W,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QY_Wn_A0_A1 <- as.numeric(
+      stats::predict(QY_W_fit_A0_A1, newdata = W)[[1]]
+    )
+    QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
+    QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
+
+    set.seed(seed)
+    QY_W_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WACYn_A1_A0[A == 0], 
+                                   X = W[A == 0, ], 
+                                   family = gaussian(), 
+                                   SL.library = SL_QY_W,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QY_Wn_A1_A0 <- as.numeric(
+      stats::predict(QY_W_fit_A1_A0, newdata = W)[[1]]
+    )
+    QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
+    QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
+
+    QY_Wn_A1_A0_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A1_A0, a = 0, newdata = W, A = A)
+    QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv <= 0] <- 0
+    QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv >= 1] <- 1
+    
+    QY_Wn_A0_A1_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A0_A1, a = 1, newdata = W, A = A)
+    QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv <= 0] <- 0
+    QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv >= 1] <- 1
+  }
+
+
+  # for the lazy evaluation of projection
+  # E_X[QY_WAS | A = a, W] using inverse weights
+  if(!is.null(glm_QY_W)){
+    QY_W_fit_A0_A1_lazy <- stats::glm(paste0("QY_WASn_A0 ~ ", glm_QY_W), family = binomial(),
+                          data = data.frame(QY_WASn_A0 = QY_WASn_A0, W)[A == 1 & R == 1, ],
+                          weights = (R / grn_1)[A == 1 & R == 1] )
+    QY_Wn_A0_A1_lazy <- stats::predict(QY_W_fit_A0_A1_lazy, type = "response", 
+                              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W))
+    QY_Wn_A0_A1_lazy_cv <- QY_Wn_A0_A1_lazy
+
+    QY_W_fit_A1_A0_lazy <- stats::glm(paste0("QY_WASn_A1 ~ ", glm_QY_W), family = binomial(),
+                          data = data.frame(QY_WASn_A1 = QY_WASn_A1, W)[A == 0 & R == 1, ],
+                          weights = (R / grn_1)[A == 0 & R == 1] )
+    QY_Wn_A1_A0_lazy <- stats::predict(QY_W_fit_A1_A0_lazy, type = "response", 
+                           newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W))
+    QY_Wn_A1_A0_lazy_cv <- QY_Wn_A1_A0_lazy
+  }else{
+    set.seed(seed)
+    QY_W_fit_A0_A1_lazy <- SuperLearner::SuperLearner(Y = QY_WAS_A0[A == 1 & R == 1], 
+                                   X = W[A == 1 & R == 1, ], 
+                                   obsWeights = (R / gRn_1)[A == 1 & R == 1],
+                                   family = gaussian(), 
+                                   SL.library = SL_QY_W,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QY_Wn_A0_A1_lazy <- as.numeric(
+      stats::predict(QY_W_fit_A0_A1_lazy, newdata = W)[[1]]
+    )
+    QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy <= 0] <- 0
+    QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy >= 1] <- 1
+
+    set.seed(seed)
+    QY_W_fit_A1_A0_lazy <- SuperLearner::SuperLearner(Y = QY_WAS_A1[A == 0 & R == 1], 
+                                   X = W[A == 0 & R == 1, ], 
+                                   obsWeights = (R / gRn_1)[A == 0 & R == 1],
+                                   family = gaussian(), 
+                                   SL.library = SL_QY_W,
+                                   method = tmp_method.CC_LS(),
+                                   control = list(saveCVFitLibrary = TRUE))
+    QY_Wn_A1_A0_lazy <- as.numeric(
+      stats::predict(QY_W_fit_A1_A0_lazy, newdata = W)[[1]]
+    )
+    QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy <= 0] <- 0
+    QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy >= 1] <- 1
+
+    QY_Wn_A1_A0_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A1_A0_lazy, a = 0, A = A, newdata = W)
+    QY_Wn_A1_A0_lazy_cv[QY_Wn_A1_A0_lazy_cv <= 0] <- 0
+    QY_Wn_A1_A0_lazy_cv[QY_Wn_A1_A0_lazy_cv >= 1] <- 1
+    
+    QY_Wn_A0_A1_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A0_A1_lazy, a = 1, A = A, newdata = W)
+    QY_Wn_A0_A1_lazy_cv[QY_Wn_A0_A1_lazy_cv <= 0] <- 0
+    QY_Wn_A0_A1_lazy_cv[QY_Wn_A0_A1_lazy_cv >= 1] <- 1
+  }
+
+  # E[ D(P_X)(O) | R = 1, W, A, C, CY]
+  # need eif for the outcome
+  D_A1_A0 <- make_full_data_eif(a1 = 1, a2 = 0, A = A, C = C, 
+                                gA = gAn_1, gC = gCn_1_A1, 
+                                gAS = gASn_1, Y = Y, QY_WAS = QY_WAS_A1, 
+                                QY_W = QY_Wn_A1_A0)
+  D_A0_A1 <- make_full_data_eif(a1 = 0, a2 = 1, A = A, C = C, 
+                                gA = 1 - gAn_1, gC = gCn_1_A1,
+                                gAS = 1 - gASn_1, Y = Y, QY_WAS = QY_WAS_A0, 
+                                QY_W = QY_Wn_A0_A1)
+
+
+  if(!is.null(glm_QD_WACY)){
+    QD_WACY_fit_A1_A0 <- stats::glm(paste0("DY_A1_A0 ~ ", glm_QD_WACY), 
+                                    data = data.frame(DY_A1_A0 = DY_A1_A0, A = A, W, 
+                                                      CY11 = CY11, CY10 = CY10)[R == 1, ])
+    QD_WACYn_A1_A0 <- stats::predict(QD_WACY_fit_A1_A0, type = "response", 
+                                     newdata = data.frame(DY_A1_A0 = DY_A1_A0, 
+                                                          A = A, W, CY11 = CY11, 
+                                                          CY10 = CY10))
+    QD_WACYn_A1_A0_cv <- QD_WACYn_A1_A0
+
+    QD_WACY_fit_A0_A1 <- stats::glm(paste0("DY_A0_A1 ~ ", glm_QD_WACY),
+                                    data = data.frame(DY_A0_A1 = DY_A0_A1, A = A, W, 
+                                                      CY11 = CY11, CY10 = CY10)[R == 1, ])
+    QD_WACYn_A0_A1 <- stats::predict(QD_WACY_fit_A0_A1, type = "response", 
+                                     newdata = data.frame(DY_A0_A1 = DY_A0_A1, 
+                                                          A = A, W, CY11 = CY11, 
+                                                          CY10 = CY10))
+    QD_WACYn_A0_A1_cv <- QD_WACYn_A0_A1
+  }else{
+    set.seed(seed)
     QD_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = D_A1_A0[R == 1], 
-                                   X = data.frame(W, CY11 = CY11, CY10 = CY10)[R == 1, ], 
+                                   X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A1_A0 <- as.numeric(
-      stats::predict(QD_WACY_fit_A1_A0, newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10))[[1]]
+      stats::predict(QD_WACY_fit_A1_A0, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10))[[1]]
     )
 
     set.seed(seed)
     QD_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = D_A0_A1[R == 1], 
-                                   X = data.frame(W, CY11 = CY11, CY10 = CY10)[R == 1, ], 
+                                   X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A0_A1 <- as.numeric(
-      stats::predict(QD_WACY_fit_A0_A1, newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10))[[1]]
+      stats::predict(QD_WACY_fit_A0_A1, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10))[[1]]
     )
 
     # get partially cross-validated predictions
-    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
-    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
-
-    
+    QD_WACYn_A1_A0_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A1_A0, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R)
+    QD_WACYn_A0_A1_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A0_A1, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R)
   }
+
   # E[Y(1, S(1))] and E[Y(0, S(0))]
   if(!is.null(glm_QY_WA)){
     QY_WA_fit <- stats::glm(paste0("Y ~ ", glm_QY_WA), family = binomial(),
@@ -532,6 +549,42 @@ natmed2 <- function(
   psi01n <- mean(QY_Wn_A0_A1) + mean(eif_psi01)
   
 
+  eif_psi10_lazy <- make_eif_ya1_sa2_lazy(a1 = 1, a2 = 0, R = R, 
+                                          gR = gRn_1, A = A, C = C, 
+                                          gA = gAn_1, gC = gCn_1_A1, 
+                                          gAS = gASn_1, Y = Y, 
+                                          QY_WAS = QY_WASn_A1, 
+                                          QD_WACY = QD_WACYn_A1_A0, 
+                                          QY_W = QY_Wn_A1_A0_lazy)
+
+  eif_psi10_lazy_cv <- make_eif_ya1_sa2_lazy(a1 = 1, a2 = 0, R = R, 
+                                          gR = gRn_1, A = A, C = C, 
+                                          gA = gAn_1, gC = gCn_1_A1, 
+                                          gAS = gASn_1_cv, Y = Y, 
+                                          QY_WAS = QY_WASn_A1_cv, 
+                                          QD_WACY = QD_WACYn_A1_A0_cv, 
+                                          QY_W = QY_Wn_A1_A0_lazy_cv)
+
+  eif_psi01_lazy <- make_eif_ya1_sa2_lazy(a1 = 0, a2 = 1, R = R, 
+                                          gR = gRn_1, A = A, C = C, 
+                                          gA = 1 - gAn_1, gC = gCn_1_A1, 
+                                          gAS = 1 - gASn_1, Y = Y, 
+                                          QY_WAS = QY_WASn_A0, 
+                                          QD_WACY = QD_WACYn_A0_A1, 
+                                          QY_W = QY_Wn_A0_A1_lazy)
+
+  eif_psi01_lazy_cv <- make_eif_ya1_sa2_lazy(a1 = 0, a2 = 1, R = R, 
+                                          gR = gRn_1, A = A, C = C, 
+                                          gA = 1 - gAn_1, gC = gCn_1_A1, 
+                                          gAS = 1 - gASn_1_cv, Y = Y, 
+                                          QY_WAS = QY_WASn_A0_cv, 
+                                          QD_WACY = QD_WACYn_A0_A1_cv, 
+                                          QY_W = QY_Wn_A0_A1_lazy_cv)
+
+  psi10n_lazy <- mean(QY_Wn_A1_A0_lazy) + mean(eif_psi10_lazy)
+  psi01n_lazy <- mean(QY_Wn_A0_A1_lazy) + mean(eif_psi01_lazy)
+  
+
   eif_psi11 <- make_eif_ya_sa(a = 1, A = A, C = C, gA = gAn_1, gC = gCn_1_A1, Y = Y, QY_WA = QY_WAn_A1)
   eif_psi00 <- make_eif_ya_sa(a = 0, A = A, C = C, gA = 1 - gAn_1, gC = gCn_1_A0, Y = Y, QY_WA = QY_WAn_A0)
   eif_psi11_cv <- make_eif_ya_sa(a = 1, A = A, C = C, gA = gAn_1, gC = gCn_1_A1_cv, Y = Y, QY_WA = QY_WAn_A1_cv)
@@ -540,65 +593,27 @@ natmed2 <- function(
   psi11n <- mean(QY_WAn_A1) + mean(eif_psi11)
   psi00n <- mean(QY_WAn_A0) + mean(eif_psi00)
 
-  # add something about CV SE here
   eif_matrix <- cbind(eif_psi11, eif_psi00, eif_psi10, eif_psi01)
   cov_matrix <- cov(eif_matrix) / n
 
   eif_matrix_cv <- cbind(eif_psi11_cv, eif_psi00_cv, eif_psi10_cv, eif_psi01_cv)
-  cov_matrix_cv <- cov(eif_matrix) / n
+  cov_matrix_cv <- cov(eif_matrix_cv) / n
 
-  # risks
-  one_step_est <- c(psi11n, psi00n, psi10n, psi01n)
-  cil <- one_step_est - 1.96 * sqrt(diag(cov_matrix))
-  ciu <- one_step_est + 1.96 * sqrt(diag(cov_matrix))
-  cil_cv <- one_step_est - 1.96 * sqrt(diag(cov_matrix_cv))
-  ciu_cv <- one_step_est + 1.96 * sqrt(diag(cov_matrix_cv))
-  risk <- data.frame(one_step = one_step_est, cil = cil, ciu = ciu, cil_cv = cil_cv, ciu_cv = ciu_cv)
-  row.names(risk) <- c("E[Y(1,S(1))]", "E[Y(0,S(0))]", "E[Y(1,S(0))]", "E[Y(0,S(1))]")
+  eif_matrix_lazy <- cbind(eif_psi11, eif_psi00, eif_psi10_lazy, eif_psi01_lazy)
+  cov_matrix_lazy <- cov(eif_matrix_lazy) / n
 
-  # effects 
-  total_eff <- psi11n / psi00n
-  grad_log_total_eff <- matrix(c(1 / psi11n, -1 / psi00n, 0, 0), ncol = 1)
-  ci_total_eff <- get_ci(total_eff, grad_log_total_eff, cov_matrix)
-  ci_total_eff_cv <- get_ci(total_eff, grad_log_total_eff, cov_matrix_cv)
+  eif_matrix_lazy_cv <- cbind(eif_psi11_cv, eif_psi00_cv, eif_psi10_lazy_cv, eif_psi01_lazy_cv)
+  cov_matrix_lazy_cv <- cov(eif_matrix_lazy_cv) / n
 
-  indirect_eff <- psi11n / psi10n
-  grad_log_indirect_eff <- matrix(c(1 / psi11n, 0, -1 / psi10n, 0), ncol = 1)
-  ci_indirect_eff <- get_ci(indirect_eff, grad_log_indirect_eff, cov_matrix)
-  ci_indirect_eff_cv <- get_ci(indirect_eff, grad_log_indirect_eff, cov_matrix_cv)
-
-  direct_eff <- psi10n / psi00n
-  grad_log_direct_eff <- matrix(c(0, -1 / psi00n, 1 / psi10n, 0), ncol = 1)
-  ci_direct_eff <- get_ci(direct_eff, grad_log_direct_eff, cov_matrix)
-  ci_direct_eff_cv <- get_ci(direct_eff, grad_log_direct_eff, cov_matrix_cv)
-
-  direct_eff2 <- psi11n / psi01n
-  grad_log_direct_eff2 <- matrix(c(1 / psi11n, 0, 0, -1 / psi01n), ncol = 1)
-  ci_direct_eff2 <- get_ci(direct_eff2, grad_log_direct_eff2, cov_matrix)
-  ci_direct_eff2_cv <- get_ci(direct_eff2, grad_log_direct_eff2, cov_matrix_cv)
+  risks_and_effects <- get_risks_and_effects(psi11n = psi11n, psi00n = psi00n,
+                                             psi10n = psi10n, psi01n = psi01n,
+                                             cov_matrix = cov_matrix,
+                                             cov_matrix_cv = cov_matrix_cv)
+  risks_and_effects_lazy <- get_risks_and_effects(psi11n = psi11n, psi00n = psi00n,
+                                                  psi10n = psi10n_lazy, psi01n = psi01n_lazy,
+                                                  cov_matrix = cov_matrix_lazy,
+                                                  cov_matrix_cv = cov_matrix_cv)
   
-  indirect_eff2 <- psi01n / psi00n
-  grad_log_indirect_eff2 <- matrix(c(0, -1 / psi00n, 0, 1 / psi01n), ncol = 1)
-  ci_indirect_eff2 <- get_ci(indirect_eff2, grad_log_indirect_eff2, cov_matrix)
-  ci_indirect_eff2_cv <- get_ci(indirect_eff2, grad_log_indirect_eff2, cov_matrix_cv)
-
-
-  eff <- data.frame(effect = c("E[Y(1,S(1))] / E[Y(0,S(0))]", "E[Y(1,S(0))] / E[Y(0,S(0))]", "E[Y(1,S(1))] / E[Y(1,S(0))]"),
-                    one_step_est = c(total_eff, direct_eff, indirect_eff),
-                    cil = c(ci_total_eff[1], ci_direct_eff[1], ci_indirect_eff[1]),
-                    ciu = c(ci_total_eff[2], ci_direct_eff[2], ci_indirect_eff[2]),
-                    cil_cv = c(ci_total_eff_cv[1], ci_direct_eff_cv[1], ci_indirect_eff_cv[1]),
-                    ciu_cv = c(ci_total_eff_cv[2], ci_direct_eff_cv[2], ci_indirect_eff_cv[2]))
-  row.names(eff) <- c("Total", "Direct", "Indirect")
-
-  eff2 <- data.frame(effect = c("E[Y(1,S(1))] / E[Y(0,S(0))]", "E[Y(1,S(1))] / E[Y(0,S(1))]", "E[Y(0,S(1))] / E[Y(0,S(0))]"),
-                    one_step_est = c(total_eff, direct_eff2, indirect_eff2),
-                    cil = c(ci_total_eff[1], ci_direct_eff2[1], ci_indirect_eff2[1]),
-                    ciu = c(ci_total_eff[2], ci_direct_eff2[2], ci_indirect_eff2[2]),
-                    cil_cv = c(ci_total_eff_cv[1], ci_direct_eff2_cv[1], ci_indirect_eff2_cv[1]),
-                    ciu_cv = c(ci_total_eff_cv[2], ci_direct_eff2_cv[2], ci_indirect_eff2_cv[2]))
-  row.names(eff2) <- c("Total", "Direct", "Indirect")
-
   # TO DO: Add fitted nuisance models to output?
   out <- list(risk = risk, eff = eff, eff2 = eff2, cov = cov_matrix, cov_cv = cov_matrix_cv)
 
