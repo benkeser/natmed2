@@ -133,7 +133,7 @@ partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R){
 
 # make newdata data.frame(A = a, W, S)
 partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C){
-  n <- length(R)
+  n <- length(C)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
   alpha_hat <- matrix(fit_sl$coef, nrow = n_algo)
