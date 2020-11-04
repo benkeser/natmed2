@@ -254,7 +254,8 @@ tmp_method.CC_nloglik <- function() {
       {
         nloptr::nloptr(
           x0 = rep(1 / ncol(modZ), ncol(modZ)),
-          eval_f = obj_and_grad(Y, modlogitZ), lb = lower_bounds,
+          eval_f = obj_and_grad(Y, modlogitZ, w = obsWeights), 
+          lb = lower_bounds,
           ub = upper_bounds, eval_g_eq = function(beta) {
             (sum(beta) -
               1)
