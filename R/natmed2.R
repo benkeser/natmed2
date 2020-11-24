@@ -219,9 +219,9 @@ natmed2 <- function(
 
   # compute outcome of extra nuisance regression
   DY_A1 <- make_D1a(a = 1, A = A, Y = Y, C = C, 
-                    gA = gASn_1, gAS = gASn_1, gC = gCn_1_A1, QY_WAS = QY_WASn_A1)
+                    gA = gAn_1, gAS = gASn_1, gC = gCn_1_A1, QY_WAS = QY_WASn_A1)
   DY_A0 <- make_D1a(a = 0, A = A, Y = Y, C = C, 
-                    gA = gASn_1, gAS = gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
+                    gA = 1 - gAn_1, gAS = gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
 
   if(!is.null(glm_QD_WACY)){
     QD_WACY_fit_A0 <- stats::glm(paste0("DY_A0 ~ ", glm_QD_WACY),
