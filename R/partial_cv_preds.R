@@ -25,7 +25,9 @@ partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[C == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[C == 0] <- stats::predict(fit_sl, newdata = newdata[C == 0, ])[[1]]
+  if(any(C == 0)){
+    reorder_preds[C == 0] <- stats::predict(fit_sl, newdata = newdata[C == 0, , drop = FALSE])[[1]]
+  }
   
   return(reorder_preds)
 }

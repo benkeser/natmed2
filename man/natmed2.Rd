@@ -4,12 +4,13 @@
 \alias{natmed2}
 \title{Natural in/direct effects with two-phase sampling of the mediator}
 \usage{
-natmed2(W, A, R, S, C, Y, glm_gR = ".^2", glm_gC = ".", SL_gC = NULL,
-  glm_gA = ".", glm_gAS = paste0(paste0(colnames(W), collapse = " + "),
-  " + S"), SL_gAS, glm_QY_WAS = paste0(paste0(colnames(W), collapse =
-  " + "), "+ A + S"), SL_QY_WAS, glm_QY_WACY = ".", SL_QY_WACY,
-  glm_QD_WACY = ".", SL_QD_WACY, glm_QY_W = ".", SL_QY_W,
-  glm_QY_WA = ".", SL_QY_WA, lazy = FALSE, seed = 1, ...)
+natmed2(W, A, R, S, C, Y, glm_gR = ".^2", gRn = NULL, glm_gC = ".",
+  SL_gC = NULL, glm_gA = ".", glm_gAS = paste0(paste0(colnames(W),
+  collapse = " + "), " + S"), SL_gAS,
+  glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), "+ A + S"),
+  SL_QY_WAS, glm_QY_WACY = ".", SL_QY_WACY, glm_QD_WACY = ".",
+  SL_QD_WACY, glm_QD_WACY_lazy = ".", SL_QD_WACY_lazy, glm_QY_W = ".",
+  SL_QY_W, glm_QY_WA = ".", SL_QY_WA, lazy = FALSE, seed = 1, ...)
 }
 \arguments{
 \item{W}{A \code{data.frame} of baseline covariates}
@@ -29,6 +30,9 @@ i.e., a measure of being not right-censored.}
 P(R = 1 | W, A, C, CY). The variable-names that can be used in the formula are:
 \code{colnames(W)}, \code{A}, \code{CY11} (indicator that \code{C}=1 and \code{Y}=1),
 and \code{CY10} (indicator that \code{C}=1 and \code{Y}=0).}
+
+\item{gRn}{A vector of known or external estimate of P(R = 1 | W, A, C, CY). If supplied then
+\code{glm_gR} is ignored.}
 
 \item{glm_gC}{A glm formula for the RHS of the estimation of 
 P(C = 1 | A, W). Defaults to a main terms regression.}

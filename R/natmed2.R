@@ -11,6 +11,8 @@
 #' P(R = 1 | W, A, C, CY). The variable-names that can be used in the formula are:
 #' \code{colnames(W)}, \code{A}, \code{CY11} (indicator that \code{C}=1 and \code{Y}=1),
 #' and \code{CY10} (indicator that \code{C}=1 and \code{Y}=0). 
+#' @param gRn A vector of known or external estimate of P(R = 1 | W, A, C, CY). If supplied then
+#' \code{glm_gR} is ignored. 
 #' @param glm_gC A glm formula for the RHS of the estimation of 
 #' P(C = 1 | A, W). Defaults to a main terms regression.
 #' @param SL_gC A \code{SuperLearner} library for estimation of censoring probability
@@ -91,6 +93,7 @@
 natmed2 <- function(
   W, A, R, S, C, Y,
   glm_gR = ".^2",
+  gRn = NULL,
   glm_gC = ".", 
   SL_gC = NULL,
   glm_gA = ".", 
@@ -118,13 +121,15 @@ natmed2 <- function(
   CY10 = as.numeric(tmpY == 0 & C == 1)
   CY11 = as.numeric(tmpY == 1 & C == 1)
 
-  if(!is.null(glm_gR)){
+  if(!is.null(glm_gR) & is.null(gRn)){
     # glm_gR a formula of colnames(W), A, CY10, CY11
     gR_fit <- stats::glm(paste0("R ~ ", glm_gR), family = binomial(),
                   data = data.frame(R = R, W, CY10 = CY10, CY11 = CY11, A = A))
     gRn_1 <- stats::predict(gR_fit, type = "response")
+  }else if(!is.null(gRn)){
+    gRn_1 <- gRn
   }else{
-    stop("specify glm formula for glm_gR")
+    stop("specify glm formula for glm_gR or gRn")
   }
 
   if(!is.null(glm_gA)){
