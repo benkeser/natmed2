@@ -112,7 +112,11 @@ natmed2 <- function(
   glm_QY_WA = ".", 
   SL_QY_WA, # Y | C = 1, W, A
   lazy = FALSE, 
-  seed = 1, ...
+  seed = 1, 
+  tol_gA = 1 / sqrt(length(A)),
+  tol_gAS = 1 / sqrt(sum(R == 1)),
+  tol_gC = 1 / sqrt(length(A)), 
+  ...
 ){
   n <- length(Y)
 
@@ -139,6 +143,7 @@ natmed2 <- function(
   }else{
     stop("specify glm formula for glm_gA")
   }
+  gAn_1 <- g_truncate(gAn_1, tol = tol_gA)
 
   if(!is.null(glm_gC)){
     gC_fit <- stats::glm(paste0("C ~ ", glm_gC), family = binomial(),
@@ -165,6 +170,10 @@ natmed2 <- function(
     gCn_1_A0_cv <- partial_cv_preds(gC_fit, a_0 = 0, W = W, include = rep(TRUE, n))
     gCn_1_A1_cv <- partial_cv_preds(gC_fit, a_0 = 1, W = W, include = rep(TRUE, n))
   }
+  gCn_1_A0 <- g_truncate(gCn_1_A0, tol = tol_gC, bound_away_from = 0)
+  gCn_1_A0_cv <- g_truncate(gCn_1_A0_cv, tol = tol_gC, bound_away_from = 0)
+  gCn_1_A1 <- g_truncate(gCn_1_A1, tol = tol_gC, bound_away_from = 0)
+  gCn_1_A1_cv <- g_truncate(gCn_1_A1_cv, tol = tol_gC, bound_away_from = 0)
 
   if(!is.null(glm_gAS)){
     gAS_fit <- stats::glm(paste0("A ~ ", glm_gAS), family = binomial(),
@@ -189,7 +198,8 @@ natmed2 <- function(
     gASn_1_cv <- rep(NA, n)
     gASn_1_cv[R == 1] <- partial_cv_preds(gAS_fit, easy = TRUE)
   }
-
+  gASn_1 <- g_truncate(gASn_1, tol = tol_gAS)
+  gASn_1_cv <- g_truncate(gASn_1_cv, tol = tol_gAS)
 
   if(!is.null(glm_QY_WAS)){
     QY_WAS_fit <- stats::glm(paste0("Y ~ ", glm_QY_WAS), family = binomial(),

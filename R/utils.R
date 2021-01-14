@@ -1,3 +1,19 @@
+#' Helper function to truncate values away from 0 and 1
+#' 
+#' @param x Vector of values to truncate
+#' @param tol Truncation tolerance
+#' @param bound_away_from A vector of 0 and/or 1.
+#' @return Vector with truncated values replaced by \code{tol}.
+g_truncate <- function(g, tol, bound_away_from = c(0, 1)){
+  if(0 %in% bound_away_from){
+    g[g < tol] <- tol
+  }
+  if(1 %in% bound_away_from){
+    g[g > (1 - tol)] <- 1 - tol
+  }
+  return(g)
+}
+
 #' Helper function to format risk and effect estimates
 #' 
 #' @param psi11n Estimate of E[Y(1, S(1))]
