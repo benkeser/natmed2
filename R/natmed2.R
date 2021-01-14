@@ -226,7 +226,7 @@ natmed2 <- function(
   DY_A1 <- make_D1a(a = 1, A = A, Y = Y, C = C, 
                     gA = gAn_1, gAS = gASn_1, gC = gCn_1_A1, QY_WAS = QY_WASn_A1)
   DY_A0 <- make_D1a(a = 0, A = A, Y = Y, C = C, 
-                    gA = 1 - gAn_1, gAS = gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
+                    gA = 1 - gAn_1, gAS = 1 - gASn_1, gC = gCn_1_A0, QY_WAS = QY_WASn_A0)
 
   if(!is.null(glm_QD_WACY)){
     QD_WACY_fit_A0 <- stats::glm(paste0("DY_A0 ~ ", glm_QD_WACY),
@@ -553,7 +553,13 @@ natmed2 <- function(
                                    QY_W = QY_Wn_A0_A1_cv)
 
   psi10n <- mean(QY_Wn_A1_A0) + mean(eif_psi10)
+  if(psi10n <= 0){
+    psi10n <- mean(QY_Wn_A1_A0)
+  }
   psi01n <- mean(QY_Wn_A0_A1) + mean(eif_psi01)
+  if(psi01n <= 0){
+    psi01n <- mean(QY_Wn_A0_A1)
+  }
   
 
   eif_psi10_lazy <- make_eif_ya1_sa2_lazy(a1 = 1, a2 = 0, R = R, 
@@ -598,7 +604,13 @@ natmed2 <- function(
   eif_psi00_cv <- make_eif_ya_sa(a = 0, A = A, C = C, gA = 1 - gAn_1, gC = gCn_1_A0_cv, Y = Y, QY_WA = QY_WAn_A0_cv)
   
   psi11n <- mean(QY_WAn_A1) + mean(eif_psi11)
+  if(psi11n <= 0){
+    psi11n <- mean(QY_WAn_A1)
+  }
   psi00n <- mean(QY_WAn_A0) + mean(eif_psi00)
+  if(psi00n <= 0){
+    psi00n <- mean(QY_WAn_A0)
+  }
 
   eif_matrix <- cbind(eif_psi11, eif_psi00, eif_psi10, eif_psi01)
   cov_matrix <- cov(eif_matrix) / n
