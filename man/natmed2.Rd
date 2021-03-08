@@ -4,13 +4,39 @@
 \alias{natmed2}
 \title{Natural in/direct effects with two-phase sampling of the mediator}
 \usage{
-natmed2(W, A, R, S, C, Y, glm_gR = ".^2", gRn = NULL, glm_gC = ".",
-  SL_gC = NULL, glm_gA = ".", glm_gAS = paste0(paste0(colnames(W),
-  collapse = " + "), " + S"), SL_gAS,
+natmed2(
+  W,
+  A,
+  R,
+  S,
+  C,
+  Y,
+  glm_gR = ".^2",
+  gRn = NULL,
+  glm_gC = ".",
+  SL_gC = NULL,
+  glm_gA = ".",
+  glm_gAS = paste0(paste0(colnames(W), collapse = " + "), " + S"),
+  SL_gAS,
   glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), "+ A + S"),
-  SL_QY_WAS, glm_QY_WACY = ".", SL_QY_WACY, glm_QD_WACY = ".",
-  SL_QD_WACY, glm_QD_WACY_lazy = ".", SL_QD_WACY_lazy, glm_QY_W = ".",
-  SL_QY_W, glm_QY_WA = ".", SL_QY_WA, lazy = FALSE, seed = 1, ...)
+  SL_QY_WAS,
+  glm_QY_WACY = ".",
+  SL_QY_WACY,
+  glm_QD_WACY = ".",
+  SL_QD_WACY,
+  glm_QD_WACY_lazy = ".",
+  SL_QD_WACY_lazy,
+  glm_QY_W = ".",
+  SL_QY_W,
+  glm_QY_WA = ".",
+  SL_QY_WA,
+  lazy = FALSE,
+  seed = 1,
+  tol_gA = 1/sqrt(length(A)),
+  tol_gAS = 1/sqrt(sum(R == 1)),
+  tol_gC = 1/sqrt(length(A)),
+  ...
+)
 }
 \arguments{
 \item{W}{A \code{data.frame} of baseline covariates}

@@ -4,8 +4,22 @@
 \alias{make_eif_ya1_sa2}
 \title{Evaluate EIF of E[Y(a1, S(a2))] on data}
 \usage{
-make_eif_ya1_sa2(a1, a2, R, gR, A, C, gA, gC, gAS, Y, QY_WAS, QD_WACY,
-  QY_WACY, QY_W)
+make_eif_ya1_sa2(
+  a1,
+  a2,
+  R,
+  gR,
+  A,
+  C,
+  gA,
+  gC,
+  gAS,
+  Y,
+  QY_WAS,
+  QD_WACY,
+  QY_WACY,
+  QY_W
+)
 }
 \arguments{
 \item{a1}{Either 0 or 1}

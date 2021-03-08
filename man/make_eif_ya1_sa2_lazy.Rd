@@ -4,8 +4,21 @@
 \alias{make_eif_ya1_sa2_lazy}
 \title{Evaluate EIF of E[Y(a1, S(a2))] on data}
 \usage{
-make_eif_ya1_sa2_lazy(a1, a2, R, gR, A, C, gA, gC, gAS, Y, QY_WAS, QY_W,
-  QD_WACY)
+make_eif_ya1_sa2_lazy(
+  a1,
+  a2,
+  R,
+  gR,
+  A,
+  C,
+  gA,
+  gC,
+  gAS,
+  Y,
+  QY_WAS,
+  QY_W,
+  QD_WACY
+)
 }
 \arguments{
 \item{a1}{Either 0 or 1}

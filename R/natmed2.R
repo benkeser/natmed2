@@ -394,14 +394,14 @@ natmed2 <- function(
                           data = data.frame(QY_WASn_A0 = QY_WASn_A0, W, wt = R / gRn_1)[A == 1 & R == 1, ],
                           weights = wt)
     QY_Wn_A0_A1_lazy <- stats::predict(QY_W_fit_A0_A1_lazy, type = "response", 
-                              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W))
+                              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W, wt = R / gRn_1))
     QY_Wn_A0_A1_lazy_cv <- QY_Wn_A0_A1_lazy
 
     QY_W_fit_A1_A0_lazy <- stats::glm(paste0("QY_WASn_A1 ~ ", glm_QY_W), family = binomial(),
                           data = data.frame(QY_WASn_A1 = QY_WASn_A1, W, wt = R / gRn_1)[A == 0 & R == 1, ],
                           weights = wt)
     QY_Wn_A1_A0_lazy <- stats::predict(QY_W_fit_A1_A0_lazy, type = "response", 
-                           newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W))
+                           newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W, wt = R / gRn_1))
     QY_Wn_A1_A0_lazy_cv <- QY_Wn_A1_A0_lazy
   }else{
     set.seed(seed)

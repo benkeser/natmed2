@@ -4,8 +4,14 @@
 \alias{get_risks_and_effects}
 \title{Helper function to format risk and effect estimates}
 \usage{
-get_risks_and_effects(psi11n, psi00n, psi10n, psi01n, cov_matrix,
-  cov_matrix_cv)
+get_risks_and_effects(
+  psi11n,
+  psi00n,
+  psi10n,
+  psi01n,
+  cov_matrix,
+  cov_matrix_cv
+)
 }
 \arguments{
 \item{psi11n}{Estimate of E[Y(1, S(1))]}

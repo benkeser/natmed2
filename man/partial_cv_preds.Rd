@@ -5,8 +5,14 @@
 \title{Helper function to properly format partially cross-validated predictions 
 from a fitted super learner.}
 \usage{
-partial_cv_preds(fit_sl, a_0, W = NULL, subset = TRUE,
-  include = NULL, easy = FALSE)
+partial_cv_preds(
+  fit_sl,
+  a_0,
+  W = NULL,
+  subset = TRUE,
+  include = NULL,
+  easy = FALSE
+)
 }
 \arguments{
 \item{fit_sl}{A fitted \code{SuperLearner} object with 

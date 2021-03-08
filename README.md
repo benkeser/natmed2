@@ -17,7 +17,7 @@ license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://openso
 **Author:** [David
 Benkeser](https://www.sph.emory.edu/faculty/profile/#!dbenkes)
 
------
+------------------------------------------------------------------------
 
 ## Description
 
@@ -25,7 +25,7 @@ Benkeser](https://www.sph.emory.edu/faculty/profile/#!dbenkes)
 natural mediation effects in settings where the mediator is measured
 subject to two-phase sampling.
 
------
+------------------------------------------------------------------------
 
 ## Installation
 
@@ -46,7 +46,7 @@ A developmental release may be installed from GitHub via
 devtools::install_github("benkeser/natmed2")
 ```
 
------
+------------------------------------------------------------------------
 
 ## Usage
 
@@ -75,99 +75,138 @@ fit <- natmed2(
   W = data.frame(W1 = W1, W2 = W2), 
   A = A, R = R, S = S, C = C, Y = Y
 )
-#> Warning in eval(family$initialize): non-integer #successes in a binomial
-#> glm!
-#> Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
-#> ifelse(type == : prediction from a rank-deficient fit may be misleading
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
+#> Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+#> prediction from a rank-deficient fit may be misleading
 
-#> Warning in predict.lm(object, newdata, se.fit, scale = 1, type =
-#> ifelse(type == : prediction from a rank-deficient fit may be misleading
-#> Warning in eval(family$initialize): non-integer #successes in a binomial
-#> glm!
+#> Warning in predict.lm(object, newdata, se.fit, scale = 1, type = if (type == :
+#> prediction from a rank-deficient fit may be misleading
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
-#> Warning in eval(family$initialize): non-integer #successes in a binomial
-#> glm!
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
-#> Warning in eval(family$initialize): non-integer #successes in a binomial
-#> glm!
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
-#> Warning in eval(family$initialize): non-integer #successes in a binomial
-#> glm!
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
+
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
+
+#> Warning in eval(family$initialize): non-integer #successes in a binomial glm!
 
 fit
 #> $risk
-#>                one_step         cil       ciu      cil_cv    ciu_cv
-#> E[Y(1,S(1))] 0.22361271  0.17074847 0.2764769  0.17074847 0.2764769
-#> E[Y(0,S(0))] 0.14736160  0.09832274 0.1964005  0.09832274 0.1964005
-#> E[Y(1,S(0))] 0.07937785 -0.08523596 0.2439917 -0.08523596 0.2439917
-#> E[Y(0,S(1))] 0.31651220  0.20578744 0.4272370  0.20578744 0.4272370
+#>                one_step        cil       ciu     cil_cv    ciu_cv
+#> E[Y(1,S(1))] 0.24561975 0.18962056 0.3016189 0.18962056 0.3016189
+#> E[Y(0,S(0))] 0.15876201 0.10968346 0.2078405 0.10968346 0.2078405
+#> E[Y(1,S(0))] 0.29097314 0.13876900 0.4431773 0.13876900 0.4431773
+#> E[Y(0,S(1))] 0.09114202 0.03818788 0.1440962 0.03818788 0.1440962
 #> 
 #> $eff
-#>                               effect one_step_est        cil       ciu
-#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]    1.5174421 1.00916832  2.281711
-#> Direct   E[Y(1,S(0))] / E[Y(0,S(0))]    0.5386603 0.06593618  4.400542
-#> Indirect E[Y(1,S(1))] / E[Y(1,S(0))]    2.8170669 0.37722321 21.037586
-#>              cil_cv    ciu_cv
-#> Total    1.00916832  2.281711
-#> Direct   0.06593618  4.400542
-#> Indirect 0.37722321 21.037586
+#>                               effect one_step_est       cil      ciu    cil_cv
+#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]     1.547094 1.0555146 2.267614 1.0555146
+#> Direct   E[Y(1,S(0))] / E[Y(0,S(0))]     1.832763 1.0022209 3.351577 1.0022209
+#> Indirect E[Y(1,S(1))] / E[Y(1,S(0))]     0.844132 0.5237696 1.360443 0.5237696
+#>            ciu_cv
+#> Total    2.267614
+#> Direct   3.351577
+#> Indirect 1.360443
 #> 
 #> $eff2
-#>                               effect one_step_est       cil      ciu
-#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]     1.517442 1.0091683 2.281711
-#> Direct   E[Y(1,S(1))] / E[Y(0,S(1))]     0.706490 0.4630251 1.077972
-#> Indirect E[Y(0,S(1))] / E[Y(0,S(0))]     2.147861 1.4429147 3.197213
-#>             cil_cv   ciu_cv
-#> Total    1.0091683 2.281711
-#> Direct   0.4630251 1.077972
-#> Indirect 1.4429147 3.197213
+#>                               effect one_step_est       cil       ciu    cil_cv
+#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]    1.5470940 1.0555146 2.2676141 1.0555146
+#> Direct   E[Y(1,S(1))] / E[Y(0,S(1))]    2.6949124 1.4500698 5.0084159 1.4500698
+#> Indirect E[Y(0,S(1))] / E[Y(0,S(0))]    0.5740795 0.3586164 0.9189966 0.3586164
+#>             ciu_cv
+#> Total    2.2676141
+#> Direct   5.0084159
+#> Indirect 0.9189966
 #> 
 #> $cov
-#>               eif_psi11     eif_psi00     eif_psi10     eif_psi01
-#> eif_psi11  7.274645e-04  1.070057e-06  7.253333e-04 -2.400833e-06
-#> eif_psi00  1.070057e-06  6.259919e-04 -4.285169e-07  4.545122e-04
-#> eif_psi10  7.253333e-04 -4.285169e-07  7.053755e-03 -1.765371e-04
-#> eif_psi01 -2.400833e-06  4.545122e-04 -1.765371e-04  3.191371e-03
+#>              eif_psi11    eif_psi00     eif_psi10     eif_psi01
+#> eif_psi11 8.163029e-04 6.860484e-06  9.099670e-04  1.589128e-05
+#> eif_psi00 6.860484e-06 6.270052e-04  2.911345e-05  3.987886e-04
+#> eif_psi10 9.099670e-04 2.911345e-05  6.030326e-03 -1.606312e-04
+#> eif_psi01 1.589128e-05 3.987886e-04 -1.606312e-04  7.299408e-04
 #> 
 #> $cov_cv
-#>               eif_psi11     eif_psi00     eif_psi10     eif_psi01
-#> eif_psi11  7.274645e-04  1.070057e-06  7.253333e-04 -2.400833e-06
-#> eif_psi00  1.070057e-06  6.259919e-04 -4.285169e-07  4.545122e-04
-#> eif_psi10  7.253333e-04 -4.285169e-07  7.053755e-03 -1.765371e-04
-#> eif_psi01 -2.400833e-06  4.545122e-04 -1.765371e-04  3.191371e-03
+#>              eif_psi11_cv eif_psi00_cv  eif_psi10_cv  eif_psi01_cv
+#> eif_psi11_cv 8.163029e-04 6.860484e-06  9.099670e-04  1.589128e-05
+#> eif_psi00_cv 6.860484e-06 6.270052e-04  2.911345e-05  3.987886e-04
+#> eif_psi10_cv 9.099670e-04 2.911345e-05  6.030326e-03 -1.606312e-04
+#> eif_psi01_cv 1.589128e-05 3.987886e-04 -1.606312e-04  7.299408e-04
+#> 
+#> $risk_lazy
+#>                one_step       cil       ciu    cil_cv    ciu_cv
+#> E[Y(1,S(1))] 0.24561975 0.1896206 0.3016189 0.1896206 0.3016189
+#> E[Y(0,S(0))] 0.15876201 0.1096835 0.2078405 0.1096835 0.2078405
+#> E[Y(1,S(0))] 0.28818635 0.1151032 0.4612695 0.1151032 0.4612695
+#> E[Y(0,S(1))] 0.09338338 0.0242826 0.1624842 0.0242826 0.1624842
+#> 
+#> $eff_lazy
+#>                               effect one_step_est       cil      ciu    cil_cv
+#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]    1.5470940 1.0555146 2.267614 1.0555146
+#> Direct   E[Y(1,S(0))] / E[Y(0,S(0))]    1.8152098 0.9252997 3.560994 0.9252997
+#> Indirect E[Y(1,S(1))] / E[Y(1,S(0))]    0.8522949 0.4879395 1.488722 0.4879395
+#>            ciu_cv
+#> Total    2.267614
+#> Direct   3.560994
+#> Indirect 1.488722
+#> 
+#> $eff2_lazy
+#>                               effect one_step_est       cil      ciu    cil_cv
+#> Total    E[Y(1,S(1))] / E[Y(0,S(0))]    1.5470940 1.0555146 2.267614 1.0555146
+#> Direct   E[Y(1,S(1))] / E[Y(0,S(1))]    2.6302299 1.2157160 5.690564 1.2157160
+#> Indirect E[Y(0,S(1))] / E[Y(0,S(0))]    0.5881973 0.3017323 1.146632 0.3017323
+#>            ciu_cv
+#> Total    2.267614
+#> Direct   5.690564
+#> Indirect 1.146632
+#> 
+#> $cov_lazy
+#>                   eif_psi11    eif_psi00 eif_psi10_lazy eif_psi01_lazy
+#> eif_psi11      8.163029e-04 6.860484e-06   9.361999e-04   1.180446e-05
+#> eif_psi00      6.860484e-06 6.270052e-04   1.321039e-05   3.811615e-04
+#> eif_psi10_lazy 9.361999e-04 1.321039e-05   7.798256e-03  -1.243435e-03
+#> eif_psi01_lazy 1.180446e-05 3.811615e-04  -1.243435e-03   1.242950e-03
+#> 
+#> $cov_lazy_cv
+#>                   eif_psi11_cv eif_psi00_cv eif_psi10_lazy_cv eif_psi01_lazy_cv
+#> eif_psi11_cv      8.163029e-04 6.860484e-06      9.361999e-04      1.180446e-05
+#> eif_psi00_cv      6.860484e-06 6.270052e-04      1.321039e-05      3.811615e-04
+#> eif_psi10_lazy_cv 9.361999e-04 1.321039e-05      7.798256e-03     -1.243435e-03
+#> eif_psi01_lazy_cv 1.180446e-05 3.811615e-04     -1.243435e-03      1.242950e-03
 ```
 
------
+------------------------------------------------------------------------
 
 ## Issues
 
 If you encounter any bugs or have any specific feature requests, please
 [file an issue](https://github.com/benkeser/natmed2/issues).
 
------
+------------------------------------------------------------------------
 
 ## License
 
-© 2016-2019 [David C.
-Benkeser](https://www.sph.emory.edu/faculty/profile/#!dbenkes)
+© 2021- [David C. Benkeser](https://www.davidbphd.com)
 
 The contents of this repository are distributed under the MIT license.
 See below for details:
 
     The MIT License (MIT)
-    
-    Copyright (c) 2016-2019 David C. Benkeser
-    
+
+    Copyright (c) 2021- David C. Benkeser
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
     to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
     copies of the Software, and to permit persons to whom the Software is
     furnished to do so, subject to the following conditions:
-    
+
     The above copyright notice and this permission notice shall be included in all
     copies or substantial portions of the Software.
-    
+
     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
     IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
     FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
