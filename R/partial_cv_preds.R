@@ -1,5 +1,5 @@
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C){
+partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C, family){
   n <- length(C)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -12,7 +12,9 @@ partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[C == 1,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[C == 1,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -33,7 +35,7 @@ partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C){
 }
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A){
+partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A, family){
   n <- length(A)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -46,7 +48,9 @@ partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[A == a,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -65,7 +69,7 @@ partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A){
 }
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A){
+partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A, family){
   n <- length(A)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -78,7 +82,8 @@ partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -99,7 +104,7 @@ partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A){
 
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R){
+partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R, family){
   n <- length(R)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -112,7 +117,9 @@ partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a & R == 1,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[A == a & R == 1,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -134,7 +141,8 @@ partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R){
 
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C){
+partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C,
+                                      family){
   n <- length(C)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -147,7 +155,9 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a & C == 1 & R == 1,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[A == a & C == 1 & R == 1,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -166,7 +176,7 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C){
 }
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R){
+partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R, family){
   n <- length(R)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -179,7 +189,9 @@ partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[R == 1,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[R == 1,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -198,7 +210,7 @@ partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R){
 }
 
 # make newdata data.frame(A = a, W, S)
-partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C){
+partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C, family){
   n <- length(C)
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
@@ -211,7 +223,9 @@ partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[R == 1 & C == 1,][foldv_ids,])
+      rslt[ , k] <- stats::predict(foldv_models[[k]], 
+                                   newdata = newdata[R == 1 & C == 1,][foldv_ids,],
+                                   family = family)
     }
     rslt_list[[v]] <- rslt
   }
@@ -247,7 +261,7 @@ partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C){
 #' This is possible for propensity score models when no missing data AND no 
 #' stratification. 
 partial_cv_preds <- function(fit_sl, a_0, W = NULL, subset = TRUE, 
-                             include = NULL, easy = FALSE){
+                             include = NULL, easy = FALSE, family){
   n_algo <- length(fit_sl$cvRisk)
   n_folds <- length(fit_sl$validRows)
 
@@ -274,9 +288,13 @@ partial_cv_preds <- function(fit_sl, a_0, W = NULL, subset = TRUE,
       for(k in seq_len(n_algo)){
         # predict under a_0
         if(!is.null(a_0)){
-          rslt[ , k] <- predict(foldv_models[[k]], newdata = data.frame(A = a_0, W)[include,][foldv_ids,])
+          rslt[ , k] <- predict(foldv_models[[k]], 
+                                newdata = data.frame(A = a_0, W)[include,][foldv_ids,],
+                                family = family)
         }else{
-          rslt[ , k] <- predict(foldv_models[[k]], newdata = W[include,][foldv_ids,])
+          rslt[ , k] <- predict(foldv_models[[k]], 
+                                newdata = W[include,][foldv_ids,],
+                                family = family)
         }
       }
       rslt_list[[v]] <- rslt

@@ -167,8 +167,8 @@ natmed2 <- function(
                         newdata = data.frame(C = C, A = 1, W))[[1]]
 
     # get partially cross-validated predictions
-    gCn_1_A0_cv <- partial_cv_preds(gC_fit, a_0 = 0, W = W, include = rep(TRUE, n))
-    gCn_1_A1_cv <- partial_cv_preds(gC_fit, a_0 = 1, W = W, include = rep(TRUE, n))
+    gCn_1_A0_cv <- partial_cv_preds(gC_fit, a_0 = 0, W = W, include = rep(TRUE, n), family = stats::binomial())
+    gCn_1_A1_cv <- partial_cv_preds(gC_fit, a_0 = 1, W = W, include = rep(TRUE, n), family = stats::binomial())
   }
   gCn_1_A0 <- g_truncate(gCn_1_A0, tol = tol_gC, bound_away_from = 0)
   gCn_1_A0_cv <- g_truncate(gCn_1_A0_cv, tol = tol_gC, bound_away_from = 0)
@@ -196,7 +196,7 @@ natmed2 <- function(
 
     # get partially cross-validated predictions
     gASn_1_cv <- rep(NA, n)
-    gASn_1_cv[R == 1] <- partial_cv_preds(gAS_fit, easy = TRUE)
+    gASn_1_cv[R == 1] <- partial_cv_preds(gAS_fit, easy = TRUE, family = stats::binomial())
   }
   gASn_1 <- g_truncate(gASn_1, tol = tol_gAS)
   gASn_1_cv <- g_truncate(gASn_1_cv, tol = tol_gAS)
@@ -228,8 +228,8 @@ natmed2 <- function(
     QY_WASn_A0[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 0, S = S, W)[R == 1,])[[1]]
     
     # get partially cross-validated predictions
-    QY_WASn_A0_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 0, S = S, W), R = R, C = C)
-    QY_WASn_A1_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 1, S = S, W), R = R, C = C)
+    QY_WASn_A0_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 0, S = S, W), R = R, C = C, family = stats::binomial())
+    QY_WASn_A1_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 1, S = S, W), R = R, C = C, family = stats::binomial())
   }
 
   # compute outcome of extra nuisance regression
@@ -279,8 +279,8 @@ natmed2 <- function(
 
 
     # get partially cross-validated predictions
-    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
-    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C)
+    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
+    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
   }
 
   if(!is.null(glm_QY_WACY)){
@@ -329,11 +329,11 @@ natmed2 <- function(
     QY_WACYn_A1_A0[QY_WACYn_A1_A0 >= 1] <- 1
 
     # get partially cross-validated predictions
-    QY_WACYn_A1_A0_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A1_A0, a = 0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
+    QY_WACYn_A1_A0_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A1_A0, a = 0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R, family = stats::gaussian())
     QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv <= 0] <- 0
     QY_WACYn_A1_A0_cv[QY_WACYn_A1_A0_cv >= 1] <- 1
     
-    QY_WACYn_A0_A1_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A0_A1, a = 1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R)
+    QY_WACYn_A0_A1_cv <- partial_cv_preds_QY_WACYn(QY_WACY_fit_A0_A1, a = 1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R, family = stats::gaussian())
     QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv <= 0] <- 0
     QY_WACYn_A0_A1_cv[QY_WACYn_A0_A1_cv >= 1] <- 1
   }
@@ -377,11 +377,11 @@ natmed2 <- function(
     QY_Wn_A0_A1[QY_Wn_A0_A1 <= 0] <- 0
     QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
 
-    QY_Wn_A1_A0_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A1_A0, a = 0, newdata = W, A = A)
+    QY_Wn_A1_A0_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A1_A0, a = 0, newdata = W, A = A, family = stats::gaussian())
     QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv <= 0] <- 0
     QY_Wn_A1_A0_cv[QY_Wn_A1_A0_cv >= 1] <- 1
     
-    QY_Wn_A0_A1_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A0_A1, a = 1, newdata = W, A = A)
+    QY_Wn_A0_A1_cv <- partial_cv_preds_QY_Wn(QY_W_fit_A0_A1, a = 1, newdata = W, A = A, family = stats::gaussian())
     QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv <= 0] <- 0
     QY_Wn_A0_A1_cv[QY_Wn_A0_A1_cv >= 1] <- 1
   }
@@ -432,11 +432,11 @@ natmed2 <- function(
     QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy <= 0] <- 0
     QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy >= 1] <- 1
 
-    QY_Wn_A1_A0_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A1_A0_lazy, a = 0, A = A, newdata = W)
+    QY_Wn_A1_A0_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A1_A0_lazy, a = 0, A = A, newdata = W, family = stats::gaussian())
     QY_Wn_A1_A0_lazy_cv[QY_Wn_A1_A0_lazy_cv <= 0] <- 0
     QY_Wn_A1_A0_lazy_cv[QY_Wn_A1_A0_lazy_cv >= 1] <- 1
     
-    QY_Wn_A0_A1_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A0_A1_lazy, a = 1, A = A, newdata = W)
+    QY_Wn_A0_A1_lazy_cv <- partial_cv_preds_QY_Wn_lazy(QY_W_fit_A0_A1_lazy, a = 1, A = A, newdata = W, family = stats::gaussian())
     QY_Wn_A0_A1_lazy_cv[QY_Wn_A0_A1_lazy_cv <= 0] <- 0
     QY_Wn_A0_A1_lazy_cv[QY_Wn_A0_A1_lazy_cv >= 1] <- 1
   }
@@ -495,8 +495,8 @@ natmed2 <- function(
     )
 
     # get partially cross-validated predictions
-    QD_WACYn_A1_A0_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A1_A0, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R)
-    QD_WACYn_A0_A1_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A0_A1, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R)
+    QD_WACYn_A1_A0_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A1_A0, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R, family = stats::gaussian())
+    QD_WACYn_A0_A1_cv <- partial_cv_preds_QD_WACYn_lazy(QD_WACY_fit_A0_A1, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10), R = R, family = stats::gaussian())
   }
 
   # E[Y(1, S(1))] and E[Y(0, S(0))]
@@ -523,8 +523,8 @@ natmed2 <- function(
     QY_WAn_A0 <- as.numeric(stats::predict(QY_WA_fit, newdata = data.frame(A = 0, W))[[1]])
     
     # get partially cross-validated predictions
-    QY_WAn_A0_cv <- partial_cv_preds_QY_WAn(QY_WA_fit, newdata = data.frame(A = 0, W), C = C)
-    QY_WAn_A1_cv <- partial_cv_preds_QY_WAn(QY_WA_fit, newdata = data.frame(A = 1, W), C = C)
+    QY_WAn_A0_cv <- partial_cv_preds_QY_WAn(QY_WA_fit, newdata = data.frame(A = 0, W), C = C, family = stats::binomial())
+    QY_WAn_A1_cv <- partial_cv_preds_QY_WAn(QY_WA_fit, newdata = data.frame(A = 1, W), C = C, family = stats::binomial())
   }
 
 
