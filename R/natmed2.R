@@ -262,9 +262,10 @@ natmed2 <- function(
                                    SL.library = SL_QD_WACY,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
+    browser()
     QD_WACYn_A0 <- rep(NA, n)
     QD_WACYn_A0[A == 1 | C == 0] <- 0
-    QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(DY_A0 = DY_A0, W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
+    QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
 
     set.seed(seed)
     QD_WACY_fit_A1 <- SuperLearner::SuperLearner(Y = DY_A1[A == 1 & C == 1 & R == 1], 
