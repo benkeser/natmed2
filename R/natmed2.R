@@ -262,7 +262,6 @@ natmed2 <- function(
                                    SL.library = SL_QD_WACY,
                                    method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
-    browser()
     QD_WACYn_A0 <- rep(NA, n)
     QD_WACYn_A0[A == 1 | C == 0] <- 0
     QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
@@ -310,7 +309,7 @@ natmed2 <- function(
                                       control = list(saveCVFitLibrary = TRUE))
     QY_WACYn_A0_A1 <- as.numeric(
       stats::predict(QY_WACY_fit_A0_A1, 
-              newdata = data.frame(QY_WASn_A0 = QY_WASn_A0, W, CY11 = CY11, CY10 = CY10))[[1]]
+              newdata = data.frame(W, CY11 = CY11, CY10 = CY10))[[1]]
     )
     QY_WACYn_A0_A1[QY_WACYn_A0_A1 <= 0] <- 0
     QY_WACYn_A0_A1[QY_WACYn_A0_A1 >= 1] <- 1
@@ -324,7 +323,7 @@ natmed2 <- function(
                                       control = list(saveCVFitLibrary = TRUE))
     QY_WACYn_A1_A0 <- as.numeric(
       stats::predict(QY_WACY_fit_A1_A0, 
-              newdata = data.frame(QY_WASn_A1 = QY_WASn_A1, W, CY11 = CY11, CY10 = CY10))[[1]]
+              newdata = data.frame(W, CY11 = CY11, CY10 = CY10))[[1]]
     )
     QY_WACYn_A1_A0[QY_WACYn_A1_A0 <= 0] <- 0
     QY_WACYn_A1_A0[QY_WACYn_A1_A0 >= 1] <- 1
