@@ -276,12 +276,12 @@ natmed2 <- function(
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A1 <- rep(NA, n)
     QD_WACYn_A1[A == 0 | C == 0] <- 0
-    QD_WACYn_A1[A == 1 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])[[1]])
+    QD_WACYn_A1[A == 1 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1, ])[[1]])
 
 
     # get partially cross-validated predictions
-    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(DY_A1 = DY_A0, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
-    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(DY_A1 = DY_A1, W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
+    QD_WACYn_A0_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A0, a = 0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
+    QD_WACYn_A1_cv <- partial_cv_preds_QD_WACYn(QD_WACY_fit_A1, a = 1, newdata = data.frame(W, CY11 = CY11, CY10 = CY10), A = A, R = R, C = C, family = stats::gaussian())
   }
 
   if(!is.null(glm_QY_WACY)){
