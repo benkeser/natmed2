@@ -72,7 +72,7 @@
 #'   W = data.frame(W1 = W1, W2 = W2), 
 #'   A = A, R = R, S = S, C = C, Y = Y
 #' )
-natmed2 <- function(
+natmed2_fx <- function(
   W, B, A, T, R, S, Y,
   glm_gR = ".^2",
   gRn = NULL,
