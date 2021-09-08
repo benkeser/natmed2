@@ -227,7 +227,7 @@ natmed2_fx <- function(
     QY_W_fit <- stats::glm(paste0("QY_WASn_A2 ~ ", glm_QY_W), family = binomial(),
                           data = data.frame(QY_WASn_A2 = QY_WASn_A2, W)[T == 1 & A == 1, ])
     QY_W <- rep(NA, n)
-    QY_W <- predict(QY_W_fit, newdata = W)
+    QY_W <- predict(QY_W_fit, newdata = W, type = "response")
   }else{
     set.seed(seed)
     QY_W_fit <- SuperLearner::SuperLearner(Y = QY_WASn_A2[T == 1 & A == 1], 
@@ -255,5 +255,5 @@ natmed2_fx <- function(
   one_step <- plug_in + mean(eif)
   se <- sqrt( var(eif) / n )
 
-  return(list(one_step = one_step, se = se))
+  return(list(plug_in = plug_in, one_step = one_step, se = se))
 }
