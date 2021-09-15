@@ -11,7 +11,8 @@ partial_cv_preds(
   W = NULL,
   subset = TRUE,
   include = NULL,
-  easy = FALSE
+  easy = FALSE,
+  family
 )
 }
 \arguments{
