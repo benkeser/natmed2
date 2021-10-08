@@ -3,7 +3,7 @@
 #' @param W A \code{data.frame} of baseline covariates
 #' @param A A numeric vector of binary treatment assignment
 #' @param R A numeric indicator of having mediator measured
-#' @param S A numeric value of the mediator
+#' @param S A data.frame containing mediator variable/s
 #' @param C A numeric indicator of having the outcome \code{Y} measured, 
 #' i.e., a measure of being not right-censored. 
 #' @param Y The binary outcome of interest
@@ -73,8 +73,8 @@
 #' W1 <- rbinom(n, 1, 0.5)
 #' W2 <- rnorm(n, 0, 1)
 #' A <- rbinom(n, 1, 0.5)
-#' S <- W1 / 4 - W2 / 3 + A + rnorm(n)
-#' Y <- rbinom(n, 1, plogis(-2 + A + W1 / 2 - S / 2))
+#' S <- data.frame(S = W1 / 4 - W2 / 3 + A + rnorm(n))
+#' Y <- rbinom(n, 1, plogis(-2 + A + W1 / 2 - S$S / 2))
 #' 
 #' # add censoring
 #' C <- rbinom(n, 1, plogis(2 + W1 / 2 - W2 / 3))
@@ -97,9 +97,11 @@ natmed2 <- function(
   glm_gC = ".", 
   SL_gC = NULL,
   glm_gA = ".", 
-  glm_gAS = paste0(paste0(colnames(W), collapse = " + "), " + S"), 
+  glm_gAS = paste0(paste0(colnames(W), collapse = " + "), " + ",
+                   paste0(colnames(S), collapse = " + ")), 
   SL_gAS,
-  glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), "+ A + S"), 
+  glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), "+ A + ",
+                      paste0(colnames(S), collapse = " + ")), 
   SL_QY_WAS, # Y | R = 1, C = 1, W, A, S
   glm_QY_WACY = ".", 
   SL_QY_WACY, # QY_WAS | R = 1, W, A, C, CY 
@@ -177,15 +179,15 @@ natmed2 <- function(
 
   if(!is.null(glm_gAS)){
     gAS_fit <- stats::glm(paste0("A ~ ", glm_gAS), family = binomial(),
-                   data = data.frame(A = A, S = S, W, wt = R / gRn_1)[R == 1,],
+                   data = data.frame(A = A, S, W, wt = R / gRn_1)[R == 1,],
                    weights = wt)
     gASn_1 <- rep(NA, n)
     gASn_1[R == 1] <- stats::predict(gAS_fit, type = "response", 
-                              newdata = data.frame(C = C, S = S, W)[R == 1,])
+                              newdata = data.frame(C = C, S, W)[R == 1,])
     gASn_1_cv <- gASn_1
   }else{
     set.seed(seed)
-    gAS_fit <- SuperLearner::SuperLearner(Y = A[R == 1], X = data.frame(S = S, W)[R == 1, ],
+    gAS_fit <- SuperLearner::SuperLearner(Y = A[R == 1], X = data.frame(S, W)[R == 1, ],
                             obsWeights = (R / gRn_1)[R == 1],
                             family = binomial(), 
                             SL.library = SL_gAS,
@@ -203,20 +205,20 @@ natmed2 <- function(
 
   if(!is.null(glm_QY_WAS)){
     QY_WAS_fit <- stats::glm(paste0("Y ~ ", glm_QY_WAS), family = binomial(),
-                      data = data.frame(Y = Y, A = A, S = S, W, wt = (R / gRn_1))[R == 1 & C == 1, ],
+                      data = data.frame(Y = Y, A = A, S, W, wt = (R / gRn_1))[R == 1 & C == 1, ],
                       weights = wt)
     QY_WASn_A1 <- rep(NA, n)
     QY_WASn_A0 <- rep(NA, n)
     QY_WASn_A1[R == 1] <- stats::predict(QY_WAS_fit, type = "response", 
-                                  newdata = data.frame(Y = Y, A = 1, S = S, W)[R == 1, ])
+                                  newdata = data.frame(Y = Y, A = 1, S, W)[R == 1, ])
     QY_WASn_A1_cv <- QY_WASn_A1
     QY_WASn_A0[R == 1] <- stats::predict(QY_WAS_fit, type = "response", 
-                                  newdata = data.frame(Y = Y, A = 0, S = S, W)[R == 1, ])    
+                                  newdata = data.frame(Y = Y, A = 0, S, W)[R == 1, ])    
     QY_WASn_A0_cv <- QY_WASn_A0
   }else{
     set.seed(seed)
     QY_WAS_fit <- SuperLearner::SuperLearner(Y = Y[R == 1 & C == 1], 
-                               X = data.frame(A = A, S = S, W)[R == 1 & C == 1, ],
+                               X = data.frame(A = A, S, W)[R == 1 & C == 1, ],
                                obsWeights = (R / gRn_1)[R == 1 & C == 1],
                                family = binomial(), 
                                SL.library = SL_QY_WAS,
@@ -224,12 +226,12 @@ natmed2 <- function(
                                control = list(saveCVFitLibrary = TRUE))
     QY_WASn_A1 <- rep(NA, n)
     QY_WASn_A0 <- rep(NA, n)
-    QY_WASn_A1[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 1, S = S, W)[R == 1,])[[1]]
-    QY_WASn_A0[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 0, S = S, W)[R == 1,])[[1]]
+    QY_WASn_A1[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 1, S, W)[R == 1,])[[1]]
+    QY_WASn_A0[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 0, S, W)[R == 1,])[[1]]
     
     # get partially cross-validated predictions
-    QY_WASn_A0_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 0, S = S, W), R = R, C = C, family = stats::binomial())
-    QY_WASn_A1_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 1, S = S, W), R = R, C = C, family = stats::binomial())
+    QY_WASn_A0_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 0, S, W), R = R, C = C, family = stats::binomial())
+    QY_WASn_A1_cv <- partial_cv_preds_QY_WASn(QY_WAS_fit, newdata = data.frame(A = 1, S, W), R = R, C = C, family = stats::binomial())
   }
 
   # compute outcome of extra nuisance regression
