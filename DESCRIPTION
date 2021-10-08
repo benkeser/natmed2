@@ -1,6 +1,6 @@
 Package: natmed2
 Title: Estimation of natural mediation effects in two-stage studies
-Version: 0.9000
+Version: 0.9001
 Authors@R: c(
     person("David", "Benkeser", email = "benkeser@emory.edu",
            role = c("aut", "cre","cph"),
@@ -23,4 +23,4 @@ BugReports: https://github.com/benkeser/natmed2/issues
 Encoding: UTF-8
 LazyData: true
 VignetteBuilder: knitr
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2

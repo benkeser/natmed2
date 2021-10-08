@@ -255,5 +255,6 @@ natmed2_fx <- function(
   one_step <- plug_in + mean(eif)
   se <- sqrt( var(eif) / n )
 
-  return(list(plug_in = plug_in, one_step = one_step, se = se))
+  return(list(plug_in = plug_in, one_step = one_step, se = se,
+              eif = eif))
 }
