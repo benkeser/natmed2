@@ -285,9 +285,6 @@ tmp_method.CC_nloglik <- function() {
         out
       }
     )
-    if (r$status < 1 || r$status > 4) {
-      warning(r$message)
-    }
     if (class(r) != "error") {
       coef <- r$solution
     } else {
