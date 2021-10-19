@@ -217,7 +217,7 @@ natmed2_fx <- function(
                                          X = data.frame(W, Y = Y)[B == 1 & A == 2 & T == 2 & R == 1, ],
                                          family = stats::gaussian(),
                                          SL.library = SL_QD,
-                                         method = tmp_method.CC_nloglik())
+                                         method = tmp_method.CC_LS())
     E_QD <- rep(NA, n)
     E_QD[!(B == 1 & A == 2 & T == 2)] <- 0
     E_QD[B == 1 & A == 2 & T == 2] <- stats::predict(QD_fit, type = "response", 
