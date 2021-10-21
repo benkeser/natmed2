@@ -182,21 +182,21 @@ natmed2_fx <- function(
 
   if(!is.null(glm_QY_WAS)){
     QY_WAS_fit <- stats::glm(paste0("Y ~ ", glm_QY_WAS), family = binomial(),
-                      data = data.frame(Y = Y, A = A, S, W, wt = (R / gRn_1))[R == 1 & T == 2, ],
+                      data = data.frame(Y = Y, S, W, wt = (R / gRn_1))[R == 1 & A == 2 & T == 2, ],
                       weights = wt)
     QY_WASn_A2 <- rep(NA, n)
     QY_WASn_A2[R == 1] <- stats::predict(QY_WAS_fit, type = "response", 
-                                  newdata = data.frame(Y = Y, A = 2, S, W)[R == 1, ])
+                                  newdata = data.frame(Y = Y, S, W)[R == 1, ])
   }else{
     set.seed(seed)
-    QY_WAS_fit <- SuperLearner::SuperLearner(Y = Y[R == 1 & T == 2], 
-                               X = data.frame(A = A, S, W)[R == 1 & T == 2, ],
-                               obsWeights = (R / gRn_1)[R == 1 & T == 2],
+    QY_WAS_fit <- SuperLearner::SuperLearner(Y = Y[A == 2 & R == 1 & T == 2], 
+                               X = data.frame(S, W)[A == 2 & R == 1 & T == 2, ],
+                               obsWeights = (R / gRn_1)[A == 2 & R == 1 & T == 2],
                                family = binomial(), 
                                SL.library = SL_QY_WAS,
                                method = tmp_method.CC_nloglik())
     QY_WASn_A2 <- rep(NA, n)
-    QY_WASn_A2[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(A = 2, S, W)[R == 1,])[[1]]    
+    QY_WASn_A2[R == 1] <- stats::predict(QY_WAS_fit, newdata = data.frame(S, W)[R == 1,])[[1]]    
   }
 
   gBn_1 = rep(mean(B == 1), n)
