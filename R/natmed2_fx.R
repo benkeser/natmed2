@@ -51,27 +51,7 @@
 #' }
 #' 
 #' @examples
-#' n <- 500
-#' W1 <- rbinom(n, 1, 0.5)
-#' W2 <- rnorm(n, 0, 1)
-#' A <- rbinom(n, 1, 0.5)
-#' S <- W1 / 4 - W2 / 3 + A + rnorm(n)
-#' Y <- rbinom(n, 1, plogis(-2 + A + W1 / 2 - S / 2))
-#' 
-#' # add censoring
-#' C <- rbinom(n, 1, plogis(2 + W1 / 2 - W2 / 3))
-#' # arbitrary fill in
-#' Y[C == 0] <- -999
-#' 
-#' R <- rep(0, n)
-#' # case-cohort sampling
-#' R <- rbinom(n, 1, 0.25)
-#' R[Y == 1] <- 1
-#' 
-#' fit <- natmed2(
-#'   W = data.frame(W1 = W1, W2 = W2), 
-#'   A = A, R = R, S = S, C = C, Y = Y
-#' )
+#' # TO DO: add example
 natmed2_fx <- function(
   W, B, A, T, R, S, Y,
   glm_gR = ".^2",
@@ -80,7 +60,7 @@ natmed2_fx <- function(
   SL_gA,
   glm_gAS = paste0(paste0(colnames(W), collapse = " + "), " + ", paste0(colnames(S), collapse = " + ")), 
   SL_gAS,
-  glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), " + A + ", paste0(colnames(S), collapse = " + ")), 
+  glm_QY_WAS = paste0(paste0(colnames(W), collapse = " + "), " + ", paste0(colnames(S), collapse = " + ")), 
   SL_QY_WAS, # Y | R = 1, T = 2, W, A, S
   glm_QD = ".", 
   SL_QD, # First piece of EIF | R = 1, T = 1, A = 1, W, Y
@@ -140,42 +120,46 @@ natmed2_fx <- function(
   gAn_0 <- g_truncate(gAn_0, tol = tol_gA)
 
   if(!is.null(glm_gAS)){
-    # P(A = 1 | W, S)
-    gA1S_fit <- stats::glm(paste0("A1 ~ ", glm_gAS), family = binomial(),
-                   data = data.frame(A1 = as.numeric(A == 1), S, W, wt = R / gRn_1)[R == 1,],
+    # P(A = 0 | W, S)
+    gA0S_fit <- stats::glm(paste0("A0 ~ ", glm_gAS), family = binomial(),
+                   data = data.frame(A0 = as.numeric(A == 0), S, W, wt = R / gRn_1)[R == 1,],
                    weights = wt)
-    # P(A = 2 | A != 1, W, S)
+    # P(A = 2 | A != 0, W, S)
     gA2S_fit <- stats::glm(paste0("A2 ~ ", glm_gAS), family = binomial(),
-                   data = data.frame(A2 = as.numeric(A == 2), S, W, wt = R / gRn_1)[R == 1 & A != 1,],
+                   data = data.frame(A2 = as.numeric(A == 2), S, W, wt = R / gRn_1)[R == 1 & A != 0,],
                    weights = wt)
 
-    gASn_1 <- rep(NA, n)
-    gASn_1[R == 1] <- stats::predict(gA1S_fit, type = "response", 
+    gASn_0 <- rep(NA, n)
+    gASn_0[R == 1] <- stats::predict(gA0S_fit, type = "response", 
                               newdata = data.frame(S, W)[R == 1,])
     gASn_2 <- rep(NA, n)
     gASn_2[R == 1] <- stats::predict(gA2S_fit, type = "response", 
-                              newdata = data.frame(S, W)[R == 1,]) * (1 - gASn_1[R == 1])
+                              newdata = data.frame(S, W)[R == 1,]) * (1 - gASn_0[R == 1])
+    gASn_1 <- rep(NA, n)
+    gASn_1[R == 1] <- 1 - (gASn_0[R == 1] + gASn_2[R == 1])
   }else{
     set.seed(seed)
-    # P(A = 1 | W, S)
-    gA1S_fit <- SuperLearner::SuperLearner(Y = as.numeric(A[R == 1] == 1), 
+    # P(A = 0 | W, S)
+    gA0S_fit <- SuperLearner::SuperLearner(Y = as.numeric(A[R == 1] == 0), 
                             X = data.frame(S, W)[R == 1, ],
                             obsWeights = (R / gRn_1)[R == 1],
                             family = binomial(), 
                             SL.library = SL_gAS,
                             method = tmp_method.CC_nloglik())
-    # P(A = 2 | A!= 1, W, S)
-    gA2S_fit <- SuperLearner::SuperLearner(Y = as.numeric(A[R == 1 & A != 1] == 2), 
-                            X = data.frame(S, W)[R == 1 & A != 1, ],
-                            obsWeights = (R / gRn_1)[R == 1 & A != 1],
+    # P(A = 2 | A!= 0, W, S)
+    gA2S_fit <- SuperLearner::SuperLearner(Y = as.numeric(A[R == 1 & A != 0] == 2), 
+                            X = data.frame(S, W)[R == 1 & A != 0, ],
+                            obsWeights = (R / gRn_1)[R == 1 & A != 0],
                             family = binomial(), 
                             SL.library = SL_gAS,
                             method = tmp_method.CC_nloglik())
-    gASn_1 <- rep(NA, n)    
-    gASn_1[R == 1] <- gA1S_fit$SL.predict
+    gASn_0 <- rep(NA, n)    
+    gASn_0[R == 1] <- gA1S_fit$SL.predict
     gASn_2 <- rep(NA, n)    
     gASn_2[R == 1] <- predict(gA2S_fit, newdata = data.frame(S, W)[R == 1,])[[1]] * 
-                          (1 - gASn_1[R == 1])    
+                          (1 - gASn_0[R == 1])  
+    gASn_1 <- rep(NA, n)
+    gASn_1[R == 1] <- 1 - (gASn_0[R == 1] + gASn_2[R == 1])  
   }
   gASn_1 <- g_truncate(gASn_1, tol = tol_gAS)
   gASn_2 <- g_truncate(gASn_2, tol = tol_gAS)
