@@ -154,7 +154,7 @@ natmed2_fx <- function(
                             SL.library = SL_gAS,
                             method = tmp_method.CC_nloglik())
     gASn_0 <- rep(NA, n)    
-    gASn_0[R == 1] <- gA1S_fit$SL.predict
+    gASn_0[R == 1] <- gA0S_fit$SL.predict
     gASn_2 <- rep(NA, n)    
     gASn_2[R == 1] <- predict(gA2S_fit, newdata = data.frame(S, W)[R == 1,])[[1]] * 
                           (1 - gASn_0[R == 1])  
