@@ -161,7 +161,7 @@ natmed2 <- function(
     gC_fit <- SuperLearner::SuperLearner(Y = C, X = data.frame(A = A, W),
                            family = binomial(), 
                            SL.library = SL_gC,
-                           method = tmp_method.CC_nloglik(),
+                           # method = tmp_method.CC_nloglik(),
                            control = list(saveCVFitLibrary = TRUE))
     gCn_1_A0 <- stats::predict(gC_fit, type = "response", 
                         newdata = data.frame(C = C, A = 0, W))[[1]]
@@ -191,7 +191,7 @@ natmed2 <- function(
                             obsWeights = (R / gRn_1)[R == 1],
                             family = binomial(), 
                             SL.library = SL_gAS,
-                            method = tmp_method.CC_nloglik(),
+                            # method = tmp_method.CC_nloglik(),
                             control = list(saveCVFitLibrary = TRUE))
     gASn_1 <- rep(NA, n)
     gASn_1[R == 1] <- gAS_fit$SL.predict
@@ -222,7 +222,7 @@ natmed2 <- function(
                                obsWeights = (R / gRn_1)[R == 1 & C == 1],
                                family = binomial(), 
                                SL.library = SL_QY_WAS,
-                               method = tmp_method.CC_nloglik(),
+                               # method = tmp_method.CC_nloglik(),
                                control = list(saveCVFitLibrary = TRUE))
     QY_WASn_A1 <- rep(NA, n)
     QY_WASn_A0 <- rep(NA, n)
@@ -262,7 +262,7 @@ natmed2 <- function(
                                    X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A0 <- rep(NA, n)
     QD_WACYn_A0[A == 1 | C == 0] <- 0
@@ -273,7 +273,7 @@ natmed2 <- function(
                                    X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A1 <- rep(NA, n)
     QD_WACYn_A1[A == 0 | C == 0] <- 0
@@ -307,7 +307,7 @@ natmed2 <- function(
                                       X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ], 
                                       family = gaussian(), 
                                       SL.library = SL_QY_WACY,
-                                      method = tmp_method.CC_LS(),
+                                      # method = tmp_method.CC_LS(),
                                       control = list(saveCVFitLibrary = TRUE))
     QY_WACYn_A0_A1 <- as.numeric(
       stats::predict(QY_WACY_fit_A0_A1, 
@@ -321,7 +321,7 @@ natmed2 <- function(
                                       X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ], 
                                       family = gaussian(), 
                                       SL.library = SL_QY_WACY,
-                                      method = tmp_method.CC_LS(),
+                                      # method = tmp_method.CC_LS(),
                                       control = list(saveCVFitLibrary = TRUE))
     QY_WACYn_A1_A0 <- as.numeric(
       stats::predict(QY_WACY_fit_A1_A0, 
@@ -358,7 +358,7 @@ natmed2 <- function(
                                    X = W[A == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QY_Wn_A0_A1 <- as.numeric(
       stats::predict(QY_W_fit_A0_A1, newdata = W)[[1]]
@@ -371,7 +371,7 @@ natmed2 <- function(
                                    X = W[A == 0, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QY_Wn_A1_A0 <- as.numeric(
       stats::predict(QY_W_fit_A1_A0, newdata = W)[[1]]
@@ -412,7 +412,7 @@ natmed2 <- function(
                                    obsWeights = (R / gRn_1)[A == 1 & R == 1],
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QY_Wn_A0_A1_lazy <- as.numeric(
       stats::predict(QY_W_fit_A0_A1_lazy, newdata = W)[[1]]
@@ -426,7 +426,7 @@ natmed2 <- function(
                                    obsWeights = (R / gRn_1)[A == 0 & R == 1],
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QY_Wn_A1_A0_lazy <- as.numeric(
       stats::predict(QY_W_fit_A1_A0_lazy, newdata = W)[[1]]
@@ -479,7 +479,7 @@ natmed2 <- function(
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY_lazy,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A1_A0 <- as.numeric(
       stats::predict(QD_WACY_fit_A1_A0, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10))[[1]]
@@ -490,7 +490,7 @@ natmed2 <- function(
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
                                    SL.library = SL_QD_WACY_lazy,
-                                   method = tmp_method.CC_LS(),
+                                   # method = tmp_method.CC_LS(),
                                    control = list(saveCVFitLibrary = TRUE))
     QD_WACYn_A0_A1 <- as.numeric(
       stats::predict(QD_WACY_fit_A0_A1, newdata = data.frame(W, A = A, CY11 = CY11, CY10 = CY10))[[1]]
@@ -519,7 +519,7 @@ natmed2 <- function(
                               X = data.frame(A = A, W)[C == 1, ],
                               family = binomial(), 
                               SL.library = SL_QY_WA,
-                              method = tmp_method.CC_nloglik(),
+                              # method = tmp_method.CC_nloglik(),
                               control = list(saveCVFitLibrary = TRUE))
     QY_WAn_A1 <- as.numeric(stats::predict(QY_WA_fit, newdata = data.frame(A = 1, W))[[1]])
     QY_WAn_A0 <- as.numeric(stats::predict(QY_WA_fit, newdata = data.frame(A = 0, W))[[1]])
