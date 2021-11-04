@@ -286,7 +286,7 @@ tmp_method.CC_nloglik <- function() {
       }
     )
     if (class(r) != "error") {
-      if(r$status != 0){
+      if(r$status == 0){
         coef <- r$solution
       } else {
         coef <- rep(0, ncol(Z))
