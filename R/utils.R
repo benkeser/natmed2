@@ -289,12 +289,12 @@ tmp_method.CC_nloglik <- function() {
       if(r$status == 0){
         coef <- r$solution
       } else {
-        coef <- rep(0, ncol(Z))
-        coef[which.min(cvRisk)] <- 1
+        coef <- rep(0, ncol(modZ))
+        coef[which.min(cvRisk)[1]] <- 1
       }
     } else {
-      coef <- rep(0, ncol(Z))
-      coef[which.min(cvRisk)] <- 1
+      coef <- rep(0, ncol(modZ))
+      coef[which.min(cvRisk)[1]] <- 1
     }
     if (anyNA(coef)) {
       warning("Some algorithms have weights of NA, setting to 0.")
