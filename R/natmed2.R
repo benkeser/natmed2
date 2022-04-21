@@ -191,6 +191,7 @@ natmed2 <- function(
                             obsWeights = (R / gRn_1)[R == 1],
                             family = binomial(), 
                             SL.library = SL_gAS,
+                            cvControl = list(stratify = TRUE),
                             # method = tmp_method.CC_nloglik(),
                             control = list(saveCVFitLibrary = TRUE))
     gASn_1 <- rep(NA, n)
