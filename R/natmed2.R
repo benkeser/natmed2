@@ -259,6 +259,9 @@ natmed2 <- function(
     QD_WACYn_A1_cv <- QD_WACYn_A1
   }else{
     set.seed(seed)
+    if(length(unique(DY_A0[A == 0 & C == 1 & R == 1])) < 3){
+      SL_QD_WACY <- "SL.mean"
+    }
     QD_WACY_fit_A0 <- SuperLearner::SuperLearner(Y = DY_A0[A == 0 & C == 1 & R == 1], 
                                    X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1 & R == 1, ], 
                                    family = gaussian(), 
@@ -270,6 +273,9 @@ natmed2 <- function(
     QD_WACYn_A0[A == 0 & C == 1] <- as.numeric(stats::predict(QD_WACY_fit_A0, newdata = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & C == 1, ])[[1]])
 
     set.seed(seed)
+    if(length(unique(DY_A1[A == 1 & C == 1 & R == 1])) < 3){
+      SL_QD_WACY <- "SL.mean"
+    }
     QD_WACY_fit_A1 <- SuperLearner::SuperLearner(Y = DY_A1[A == 1 & C == 1 & R == 1], 
                                    X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & C == 1 & R == 1, ], 
                                    family = gaussian(), 
@@ -304,6 +310,9 @@ natmed2 <- function(
     QY_WACYn_A1_A0_cv <- QY_WACYn_A1_A0
   }else{
     set.seed(seed)
+    if(length(unique(QY_WASn_A0[A == 1 & R == 1])) < 3){
+      SL_QY_WACY <- "SL.mean"
+    }
     QY_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
                                       X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 1 & R == 1, ], 
                                       family = gaussian(), 
@@ -318,6 +327,9 @@ natmed2 <- function(
     QY_WACYn_A0_A1[QY_WACYn_A0_A1 >= 1] <- 1
 
     set.seed(seed)
+    if(length(unique(QY_WASn_A1[A == 0 & R == 1])) < 3){
+      SL_QY_WACY <- "SL.mean"
+    }
     QY_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
                                       X = data.frame(W, CY11 = CY11, CY10 = CY10)[A == 0 & R == 1, ], 
                                       family = gaussian(), 
@@ -355,6 +367,9 @@ natmed2 <- function(
     QY_Wn_A1_A0_cv <- QY_Wn_A1_A0
   }else{
     set.seed(seed)
+    if(length(unique(QY_WACYn_A0_A1[A == 1])) < 3){
+      SL_QY_W <- "SL.mean"
+    }
     QY_W_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WACYn_A0_A1[A == 1], 
                                    X = W[A == 1, ], 
                                    family = gaussian(), 
@@ -368,6 +383,9 @@ natmed2 <- function(
     QY_Wn_A0_A1[QY_Wn_A0_A1 >= 1] <- 1
 
     set.seed(seed)
+    if(length(unique(QY_WACYn_A1_A0[A == 0])) < 3){
+      SL_QY_W <- "SL.mean"
+    }
     QY_W_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WACYn_A1_A0[A == 0], 
                                    X = W[A == 0, ], 
                                    family = gaussian(), 
@@ -408,6 +426,9 @@ natmed2 <- function(
     QY_Wn_A1_A0_lazy_cv <- QY_Wn_A1_A0_lazy
   }else{
     set.seed(seed)
+    if(length(unique(QY_WASn_A0[A == 1 & R == 1])) < 3){
+      SL_QY_W <- "SL.mean"
+    }
     QY_W_fit_A0_A1_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
                                    X = W[A == 1 & R == 1, ], 
                                    obsWeights = (R / gRn_1)[A == 1 & R == 1],
@@ -422,6 +443,9 @@ natmed2 <- function(
     QY_Wn_A0_A1_lazy[QY_Wn_A0_A1_lazy >= 1] <- 1
 
     set.seed(seed)
+    if(length(unique(QY_WASn_A1[A == 0 & R == 1])) < 3){
+      SL_QY_W <- "SL.mean"
+    }
     QY_W_fit_A1_A0_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
                                    X = W[A == 0 & R == 1, ], 
                                    obsWeights = (R / gRn_1)[A == 0 & R == 1],
@@ -476,6 +500,9 @@ natmed2 <- function(
     QD_WACYn_A0_A1_cv <- QD_WACYn_A0_A1
   }else{
     set.seed(seed)
+    if(length(unique(D_A1_A0[R == 1])) < 3){
+      SL_QD_WACY_lazy <- "SL.mean"
+    }
     QD_WACY_fit_A1_A0 <- SuperLearner::SuperLearner(Y = D_A1_A0[R == 1], 
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
@@ -487,6 +514,9 @@ natmed2 <- function(
     )
 
     set.seed(seed)
+    if(length(unique(D_A0_A1[R == 1])) < 3){
+      SL_QD_WACY_lazy <- "SL.mean"
+    }
     QD_WACY_fit_A0_A1 <- SuperLearner::SuperLearner(Y = D_A0_A1[R == 1], 
                                    X = data.frame(W, A = A, CY11 = CY11, CY10 = CY10)[R == 1, ], 
                                    family = gaussian(), 
