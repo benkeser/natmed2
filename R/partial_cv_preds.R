@@ -170,8 +170,9 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C,
   # fill in observations in regression with cross-validated prediction
   reorder_preds[A == a & C == 1 & R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[A == a & C == 1 & R == 0] <- stats::predict(fit_sl, newdata = newdata[A == a & C == 1 & R == 0, ])[[1]]
-  
+  if(sum(A == a & C == 1 & R == 0) > 1){
+    reorder_preds[A == a & C == 1 & R == 0] <- stats::predict(fit_sl, newdata = newdata[A == a & C == 1 & R == 0, ])[[1]]
+  }
   return(reorder_preds)
 }
 
@@ -204,8 +205,9 @@ partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R, family){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[R == 0] <- stats::predict(fit_sl, newdata = newdata[R == 0, ])[[1]]
-  
+  if(any(R == 0)){
+    reorder_preds[R == 0] <- stats::predict(fit_sl, newdata = newdata[R == 0, ])[[1]]
+  }
   return(reorder_preds)
 }
 
