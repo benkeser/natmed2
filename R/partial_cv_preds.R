@@ -49,7 +49,7 @@ partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[A == a,][foldv_ids,],
+                                   newdata = newdata[A == a, , drop = FALSE][foldv_ids,],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -82,7 +82,7 @@ partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A, family){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a,][foldv_ids,],
+      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a, , drop = FALSE][foldv_ids,],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
