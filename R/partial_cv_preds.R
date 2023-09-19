@@ -13,7 +13,7 @@ partial_cv_preds_QY_WAn <- function(fit_sl, newdata, C, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[C == 1,][foldv_ids,],
+                                   newdata = newdata[C == 1, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -49,7 +49,7 @@ partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[A == a, , drop = FALSE][foldv_ids,],
+                                   newdata = newdata[A == a, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -82,7 +82,7 @@ partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A, family){
     foldv_models <- fit_sl$cvFitLibrary[[v]]
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
-      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a, , drop = FALSE][foldv_ids,],
+      rslt[ , k] <- stats::predict(foldv_models[[k]], newdata = newdata[A == a, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -118,7 +118,7 @@ partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[A == a & R == 1,][foldv_ids,],
+                                   newdata = newdata[A == a & R == 1, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -132,7 +132,7 @@ partial_cv_preds_QY_WACYn <- function(fit_sl, newdata, a, A, R, family){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[A == a & R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[A != a | R == 0] <- stats::predict(fit_sl, newdata = newdata[A != a | R == 0, ])[[1]]
+  reorder_preds[A != a | R == 0] <- stats::predict(fit_sl, newdata = newdata[A != a | R == 0, , drop = FALSE])[[1]]
   
   return(reorder_preds)
 }
@@ -156,7 +156,7 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C,
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[A == a & C == 1 & R == 1,][foldv_ids,],
+                                   newdata = newdata[A == a & C == 1 & R == 1, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -171,7 +171,7 @@ partial_cv_preds_QD_WACYn <- function(fit_sl, newdata, a, A, R, C,
   reorder_preds[A == a & C == 1 & R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
   if(sum(A == a & C == 1 & R == 0) > 1){
-    reorder_preds[A == a & C == 1 & R == 0] <- stats::predict(fit_sl, newdata = newdata[A == a & C == 1 & R == 0, ])[[1]]
+    reorder_preds[A == a & C == 1 & R == 0] <- stats::predict(fit_sl, newdata = newdata[A == a & C == 1 & R == 0, , drop = FALSE])[[1]]
   }
   return(reorder_preds)
 }
@@ -191,7 +191,7 @@ partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[R == 1,][foldv_ids,],
+                                   newdata = newdata[R == 1, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -206,7 +206,7 @@ partial_cv_preds_QD_WACYn_lazy <- function(fit_sl, newdata, R, family){
   reorder_preds[R == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
   if(any(R == 0)){
-    reorder_preds[R == 0] <- stats::predict(fit_sl, newdata = newdata[R == 0, ])[[1]]
+    reorder_preds[R == 0] <- stats::predict(fit_sl, newdata = newdata[R == 0, , drop = FALSE])[[1]]
   }
   return(reorder_preds)
 }
@@ -226,7 +226,7 @@ partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C, family){
     rslt <- matrix(NA, nrow = length(foldv_ids), ncol = n_algo)
     for(k in seq_len(n_algo)){
       rslt[ , k] <- stats::predict(foldv_models[[k]], 
-                                   newdata = newdata[R == 1 & C == 1,][foldv_ids,],
+                                   newdata = newdata[R == 1 & C == 1, , drop = FALSE][foldv_ids, , drop = FALSE],
                                    family = family)
     }
     rslt_list[[v]] <- rslt
@@ -240,7 +240,7 @@ partial_cv_preds_QY_WASn <- function(fit_sl, newdata, R, C, family){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[R == 1 & C == 1][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[R == 1] <- stats::predict(fit_sl, newdata = newdata[R == 1,,drop = FALSE])[[1]]
+  reorder_preds[R == 1] <- stats::predict(fit_sl, newdata = newdata[R == 1, , drop = FALSE])[[1]]
   
   return(reorder_preds)
 }
@@ -291,11 +291,11 @@ partial_cv_preds <- function(fit_sl, a_0, W = NULL, subset = TRUE,
         # predict under a_0
         if(!is.null(a_0)){
           rslt[ , k] <- predict(foldv_models[[k]], 
-                                newdata = data.frame(A = a_0, W)[include,][foldv_ids,],
+                                newdata = data.frame(A = a_0, W)[include, , drop = FALSE][foldv_ids, , drop = FALSE],
                                 family = family)
         }else{
           rslt[ , k] <- predict(foldv_models[[k]], 
-                                newdata = W[include,][foldv_ids,],
+                                newdata = W[include, , drop = FALSE][foldv_ids, , drop = FALSE],
                                 family = family)
         }
       }
