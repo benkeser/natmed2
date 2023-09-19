@@ -63,7 +63,7 @@ partial_cv_preds_QY_Wn_lazy <- function(fit_sl, newdata, a, A, family){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[A == a][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[A != a] <- stats::predict(fit_sl, newdata = newdata[A != a, ])[[1]]
+  reorder_preds[A != a] <- stats::predict(fit_sl, newdata = newdata[A != a, , drop = FALSE])[[1]]
   
   return(reorder_preds)
 }
@@ -96,7 +96,7 @@ partial_cv_preds_QY_Wn <- function(fit_sl, newdata, a, A, family){
   # fill in observations in regression with cross-validated prediction
   reorder_preds[A == a][unlist(fit_sl$validRows)] <- unlist(pred_list, use.names = FALSE)
   # all others fill in with prediction from super learner 
-  reorder_preds[A != a] <- stats::predict(fit_sl, newdata = newdata[A != a, ])[[1]]
+  reorder_preds[A != a] <- stats::predict(fit_sl, newdata = newdata[A != a, , drop = FALSE])[[1]]
   
   return(reorder_preds)
 }
