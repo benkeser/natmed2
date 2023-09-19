@@ -355,13 +355,13 @@ natmed2 <- function(
 
   if(!is.null(glm_QY_W)){
     QY_W_fit_A0_A1 <- stats::glm(paste0("QY_WACYn_A0_A1 ~ ", glm_QY_W), family = binomial(),
-                          data = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W)[A == 1, ])
+                          data = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W)[A == 1, , drop = FALSE])
     QY_Wn_A0_A1 <- stats::predict(QY_W_fit_A0_A1, type = "response", 
                               newdata = data.frame(QY_WACYn_A0_A1 = QY_WACYn_A0_A1, W))
     QY_Wn_A0_A1_cv <- QY_Wn_A0_A1
 
     QY_W_fit_A1_A0 <- stats::glm(paste0("QY_WACYn_A1_A0 ~ ", glm_QY_W), family = binomial(),
-                          data = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W)[A == 0, ])
+                          data = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W)[A == 0, , drop = FALSE])
     QY_Wn_A1_A0 <- stats::predict(QY_W_fit_A1_A0, type = "response", 
                            newdata = data.frame(QY_WACYn_A1_A0 = QY_WACYn_A1_A0, W))
     QY_Wn_A1_A0_cv <- QY_Wn_A1_A0
@@ -371,7 +371,7 @@ natmed2 <- function(
       SL_QY_W <- "SL.mean"
     }
     QY_W_fit_A0_A1 <- SuperLearner::SuperLearner(Y = QY_WACYn_A0_A1[A == 1], 
-                                   X = W[A == 1, ], 
+                                   X = W[A == 1, , drop = FALSE], 
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
                                    # method = tmp_method.CC_LS(),
@@ -387,7 +387,7 @@ natmed2 <- function(
       SL_QY_W <- "SL.mean"
     }
     QY_W_fit_A1_A0 <- SuperLearner::SuperLearner(Y = QY_WACYn_A1_A0[A == 0], 
-                                   X = W[A == 0, ], 
+                                   X = W[A == 0, , drop = FALSE], 
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
                                    # method = tmp_method.CC_LS(),
@@ -430,7 +430,7 @@ natmed2 <- function(
       SL_QY_W <- "SL.mean"
     }
     QY_W_fit_A0_A1_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A0[A == 1 & R == 1], 
-                                   X = W[A == 1 & R == 1, ], 
+                                   X = W[A == 1 & R == 1, , drop = FALSE], 
                                    obsWeights = (R / gRn_1)[A == 1 & R == 1],
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
@@ -447,7 +447,7 @@ natmed2 <- function(
       SL_QY_W <- "SL.mean"
     }
     QY_W_fit_A1_A0_lazy <- SuperLearner::SuperLearner(Y = QY_WASn_A1[A == 0 & R == 1], 
-                                   X = W[A == 0 & R == 1, ], 
+                                   X = W[A == 0 & R == 1, , drop = FALSE], 
                                    obsWeights = (R / gRn_1)[A == 0 & R == 1],
                                    family = gaussian(), 
                                    SL.library = SL_QY_W,
